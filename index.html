@@ -15,44 +15,33 @@
   <link rel="icon" href="icon-192.png"/>
   <style>
     html,body,#root{margin:0;padding:0;width:100%;min-height:100%;background:#040d1a;
-      padding-top:env(safe-area-inset-top);
-      padding-bottom:env(safe-area-inset-bottom);}
+      padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
     #splash{position:fixed;inset:0;background:#040d1a;display:flex;flex-direction:column;
       align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s;}
     #splash.hide{opacity:0;pointer-events:none;}
-    #splash-icon{width:72px;height:72px;border-radius:18px;
-      background:linear-gradient(135deg,#3b82f6,#8b5cf6);
-      display:flex;align-items:center;justify-content:center;
-      font-size:34px;margin-bottom:18px;
+    #splash-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+      display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:18px;
       animation:splashPulse 1.5s ease-in-out infinite;}
-    #splash h1{font-family:system-ui,sans-serif;font-size:28px;font-weight:800;
-      color:#e2e8f0;margin:0 0 6px;letter-spacing:-0.02em;}
+    #splash h1{font-family:system-ui,sans-serif;font-size:28px;font-weight:800;color:#e2e8f0;margin:0 0 6px;letter-spacing:-0.02em;}
     #splash p{font-family:monospace;color:#475569;font-size:12px;margin:0;}
-    #install-banner{position:fixed;bottom:16px;left:16px;right:16px;
-      background:#0d1f38;border:1px solid #1e3a5f;border-radius:12px;
-      padding:14px 16px;display:none;align-items:center;gap:12px;
-      z-index:500;box-shadow:0 8px 32px #00000088;}
+    #install-banner{position:fixed;bottom:16px;left:16px;right:16px;background:#0d1f38;
+      border:1px solid #1e3a5f;border-radius:12px;padding:14px 16px;display:none;
+      align-items:center;gap:12px;z-index:500;box-shadow:0 8px 32px #00000088;}
     #install-banner.show{display:flex;}
     #install-banner span{flex:1;font-family:monospace;font-size:12px;color:#94a3b8;}
-    #install-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;
-      border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;
-      cursor:pointer;font-family:monospace;white-space:nowrap;}
-    #dismiss-btn{background:transparent;border:none;color:#475569;font-size:18px;
-      cursor:pointer;padding:0 4px;line-height:1;}
-    #offline-bar{display:none;position:fixed;top:0;left:0;right:0;
-      background:#7f1d1d;color:#fca5a5;text-align:center;
-      font-family:monospace;font-size:12px;padding:6px;z-index:1000;}
+    #install-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;border:none;
+      border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;
+      font-family:monospace;white-space:nowrap;}
+    #dismiss-btn{background:transparent;border:none;color:#475569;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;}
+    #offline-bar{display:none;position:fixed;top:0;left:0;right:0;background:#7f1d1d;
+      color:#fca5a5;text-align:center;font-family:monospace;font-size:12px;padding:6px;z-index:1000;}
     #offline-bar.show{display:block;}
     @keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
   </style>
 </head>
 <body>
 <div id="offline-bar">📡 You're offline — previously loaded content still works</div>
-<div id="splash">
-  <div id="splash-icon">✦</div>
-  <h1>ApplyAI</h1>
-  <p>Loading…</p>
-</div>
+<div id="splash"><div id="splash-icon">✦</div><h1>ApplyAI</h1><p>Loading…</p></div>
 <div id="root"></div>
 <div id="install-banner">
   <span>📲 Install ApplyAI on your home screen</span>
@@ -60,18 +49,12 @@
   <button id="dismiss-btn">✕</button>
 </div>
 
-<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
-
-<!-- docx.js -->
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
-
-<!-- React -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 
-<!-- App -->
 <script>
 "use strict";
 
@@ -90,10 +73,34 @@ var _React = React,
   useCallback = _React.useCallback,
   useRef = _React.useRef;
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-var CLAUDE_API_KEY = "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";
-var CLAUDE_URL = "https://api.anthropic.com/v1/messages";
-var CLAUDE_MODEL = "claude-haiku-4-5-20251001";
+// ─── Config — loaded dynamically from localStorage ───────────────────────────
+var AI_MODELS = {
+  claude: {
+    name: "Claude (Anthropic)",
+    models: ["claude-haiku-4-5-20251001", "claude-sonnet-4-5", "claude-opus-4-5"],
+    placeholder: "sk-ant-api03-...",
+    docsUrl: "https://console.anthropic.com/settings/keys"
+  },
+  chatgpt: {
+    name: "ChatGPT (OpenAI)",
+    models: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
+    placeholder: "sk-...",
+    docsUrl: "https://platform.openai.com/api-keys"
+  },
+  gemini: {
+    name: "Gemini (Google)",
+    models: ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-2.0-flash"],
+    placeholder: "AIzaSy...",
+    docsUrl: "https://aistudio.google.com/app/apikey"
+  }
+};
+function getAIConfig() {
+  return {
+    provider: ls.get("ai_provider", null),
+    model: ls.get("ai_model", null),
+    apiKey: ls.get("ai_key", null)
+  };
+}
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 var ls = {
@@ -123,100 +130,110 @@ function extractPdfText(_x) {
   return _extractPdfText.apply(this, arguments);
 } // ─── Claude API ───────────────────────────────────────────────────────────────
 function _extractPdfText() {
-  _extractPdfText = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(file) {
-    return _regenerator().w(function (_context5) {
-      while (1) switch (_context5.n) {
+  _extractPdfText = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(file) {
+    return _regenerator().w(function (_context6) {
+      while (1) switch (_context6.n) {
         case 0:
-          return _context5.a(2, new Promise(function (resolve, reject) {
+          return _context6.a(2, new Promise(function (resolve, reject) {
             var reader = new FileReader();
             reader.onload = /*#__PURE__*/function () {
-              var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(e) {
-                var typedArray, pdf, text, i, page, content, _t4;
-                return _regenerator().w(function (_context4) {
-                  while (1) switch (_context4.p = _context4.n) {
+              var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+                var typedArray, pdf, text, i, page, content, _t5;
+                return _regenerator().w(function (_context5) {
+                  while (1) switch (_context5.p = _context5.n) {
                     case 0:
-                      _context4.p = 0;
+                      _context5.p = 0;
                       typedArray = new Uint8Array(e.target.result);
-                      _context4.n = 1;
+                      _context5.n = 1;
                       return window.pdfjsLib.getDocument({
                         data: typedArray
                       }).promise;
                     case 1:
-                      pdf = _context4.v;
+                      pdf = _context5.v;
                       text = "";
                       i = 1;
                     case 2:
                       if (!(i <= pdf.numPages)) {
-                        _context4.n = 6;
+                        _context5.n = 6;
                         break;
                       }
-                      _context4.n = 3;
+                      _context5.n = 3;
                       return pdf.getPage(i);
                     case 3:
-                      page = _context4.v;
-                      _context4.n = 4;
+                      page = _context5.v;
+                      _context5.n = 4;
                       return page.getTextContent();
                     case 4:
-                      content = _context4.v;
+                      content = _context5.v;
                       text += content.items.map(function (item) {
                         return item.str;
                       }).join(" ") + "\n";
                     case 5:
                       i++;
-                      _context4.n = 2;
+                      _context5.n = 2;
                       break;
                     case 6:
                       if (!(!text.trim() || text.trim().length < 50)) {
-                        _context4.n = 7;
+                        _context5.n = 7;
                         break;
                       }
                       throw new Error("Could not extract text — make sure your PDF is text-based, not a scanned image");
                     case 7:
                       resolve(text.trim());
-                      _context4.n = 9;
+                      _context5.n = 9;
                       break;
                     case 8:
-                      _context4.p = 8;
-                      _t4 = _context4.v;
-                      reject(_t4);
+                      _context5.p = 8;
+                      _t5 = _context5.v;
+                      reject(_t5);
                     case 9:
-                      return _context4.a(2);
+                      return _context5.a(2);
                   }
-                }, _callee4, null, [[0, 8]]);
+                }, _callee5, null, [[0, 8]]);
               }));
               return function (_x0) {
-                return _ref3.apply(this, arguments);
+                return _ref6.apply(this, arguments);
               };
             }();
             reader.onerror = reject;
             reader.readAsArrayBuffer(file);
           }));
       }
-    }, _callee5);
+    }, _callee6);
   }));
   return _extractPdfText.apply(this, arguments);
 }
-function callClaude(_x2) {
-  return _callClaude.apply(this, arguments);
+function callAI(_x2) {
+  return _callAI.apply(this, arguments);
 }
-function _callClaude() {
-  _callClaude = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(prompt) {
-    var _data$content;
-    var res, _err$error, err, data;
-    return _regenerator().w(function (_context6) {
-      while (1) switch (_context6.n) {
+function _callAI() {
+  _callAI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(prompt) {
+    var _getAIConfig, provider, model, apiKey, _d$content, res, _e$error, e, d, _d$choices, _res, _e$error2, _e, _d, _d2$candidates, _res2, _e2$error, _e2, _d2;
+    return _regenerator().w(function (_context7) {
+      while (1) switch (_context7.n) {
         case 0:
-          _context6.n = 1;
-          return fetch(CLAUDE_URL, {
+          _getAIConfig = getAIConfig(), provider = _getAIConfig.provider, model = _getAIConfig.model, apiKey = _getAIConfig.apiKey;
+          if (!(!provider || !apiKey)) {
+            _context7.n = 1;
+            break;
+          }
+          throw new Error("No AI configured — please set up your API key in Settings");
+        case 1:
+          if (!(provider === "claude")) {
+            _context7.n = 6;
+            break;
+          }
+          _context7.n = 2;
+          return fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-api-key": CLAUDE_API_KEY,
+              "x-api-key": apiKey,
               "anthropic-version": "2023-06-01",
               "anthropic-dangerous-direct-browser-access": "true"
             },
             body: JSON.stringify({
-              model: CLAUDE_MODEL,
+              model: model,
               max_tokens: 2048,
               messages: [{
                 role: "user",
@@ -224,39 +241,122 @@ function _callClaude() {
               }]
             })
           });
-        case 1:
-          res = _context6.v;
+        case 2:
+          res = _context7.v;
           if (res.ok) {
-            _context6.n = 3;
+            _context7.n = 4;
             break;
           }
-          _context6.n = 2;
+          _context7.n = 3;
           return res.json();
-        case 2:
-          err = _context6.v;
-          throw new Error(((_err$error = err.error) === null || _err$error === void 0 ? void 0 : _err$error.message) || "HTTP ".concat(res.status));
         case 3:
-          _context6.n = 4;
-          return res.json();
+          e = _context7.v;
+          throw new Error(((_e$error = e.error) === null || _e$error === void 0 ? void 0 : _e$error.message) || "Claude error ".concat(res.status));
         case 4:
-          data = _context6.v;
-          return _context6.a(2, ((_data$content = data.content) === null || _data$content === void 0 || (_data$content = _data$content[0]) === null || _data$content === void 0 ? void 0 : _data$content.text) || "");
+          _context7.n = 5;
+          return res.json();
+        case 5:
+          d = _context7.v;
+          return _context7.a(2, ((_d$content = d.content) === null || _d$content === void 0 || (_d$content = _d$content[0]) === null || _d$content === void 0 ? void 0 : _d$content.text) || "");
+        case 6:
+          if (!(provider === "chatgpt")) {
+            _context7.n = 11;
+            break;
+          }
+          _context7.n = 7;
+          return fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer ".concat(apiKey)
+            },
+            body: JSON.stringify({
+              model: model,
+              max_tokens: 2048,
+              temperature: 0.3,
+              messages: [{
+                role: "user",
+                content: prompt
+              }]
+            })
+          });
+        case 7:
+          _res = _context7.v;
+          if (_res.ok) {
+            _context7.n = 9;
+            break;
+          }
+          _context7.n = 8;
+          return _res.json();
+        case 8:
+          _e = _context7.v;
+          throw new Error(((_e$error2 = _e.error) === null || _e$error2 === void 0 ? void 0 : _e$error2.message) || "OpenAI error ".concat(_res.status));
+        case 9:
+          _context7.n = 10;
+          return _res.json();
+        case 10:
+          _d = _context7.v;
+          return _context7.a(2, ((_d$choices = _d.choices) === null || _d$choices === void 0 || (_d$choices = _d$choices[0]) === null || _d$choices === void 0 || (_d$choices = _d$choices.message) === null || _d$choices === void 0 ? void 0 : _d$choices.content) || "");
+        case 11:
+          if (!(provider === "gemini")) {
+            _context7.n = 16;
+            break;
+          }
+          _context7.n = 12;
+          return fetch("https://generativelanguage.googleapis.com/v1beta/models/".concat(model, ":generateContent?key=").concat(apiKey), {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: prompt
+                }]
+              }],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 2048
+              }
+            })
+          });
+        case 12:
+          _res2 = _context7.v;
+          if (_res2.ok) {
+            _context7.n = 14;
+            break;
+          }
+          _context7.n = 13;
+          return _res2.json();
+        case 13:
+          _e2 = _context7.v;
+          throw new Error(((_e2$error = _e2.error) === null || _e2$error === void 0 ? void 0 : _e2$error.message) || "Gemini error ".concat(_res2.status));
+        case 14:
+          _context7.n = 15;
+          return _res2.json();
+        case 15:
+          _d2 = _context7.v;
+          return _context7.a(2, ((_d2$candidates = _d2.candidates) === null || _d2$candidates === void 0 || (_d2$candidates = _d2$candidates[0]) === null || _d2$candidates === void 0 || (_d2$candidates = _d2$candidates.content) === null || _d2$candidates === void 0 || (_d2$candidates = _d2$candidates.parts) === null || _d2$candidates === void 0 || (_d2$candidates = _d2$candidates[0]) === null || _d2$candidates === void 0 ? void 0 : _d2$candidates.text) || "");
+        case 16:
+          throw new Error("Unknown AI provider: " + provider);
+        case 17:
+          return _context7.a(2);
       }
-    }, _callee6);
+    }, _callee7);
   }));
-  return _callClaude.apply(this, arguments);
+  return _callAI.apply(this, arguments);
 }
 function customizeResume(_x3, _x4) {
   return _customizeResume.apply(this, arguments);
 }
 function _customizeResume() {
-  _customizeResume = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(resumeText, jd) {
-    return _regenerator().w(function (_context7) {
-      while (1) switch (_context7.n) {
+  _customizeResume = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8(resumeText, jd) {
+    return _regenerator().w(function (_context8) {
+      while (1) switch (_context8.n) {
         case 0:
-          return _context7.a(2, callClaude("You are an expert resume writer.\nTailor this resume for the job description below.\nRULES:\n- Use ONLY the candidate's real experience, skills, and achievements \u2014 never fabricate\n- Reorder bullet points to put the most relevant experience first\n- Reword descriptions using keywords and language from the JD\n- Emphasise skills and technologies that match the JD requirements\n- Keep the same sections and overall structure\n- Output the complete rewritten resume as plain text, ready to copy\n\nCANDIDATE'S RESUME:\n".concat(resumeText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored resume now:")));
+          return _context8.a(2, callAI("You are an expert resume writer.\nTailor this resume for the job description below.\nRULES:\n- Use ONLY the candidate's real experience, skills, and achievements \u2014 never fabricate\n- Reorder bullet points to put the most relevant experience first\n- Reword descriptions using keywords and language from the JD\n- Emphasise skills and technologies that match the JD requirements\n- Keep the same sections and overall structure\n- Output the complete rewritten resume as plain text, ready to copy\n\nCANDIDATE'S RESUME:\n".concat(resumeText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored resume now:")));
       }
-    }, _callee7);
+    }, _callee8);
   }));
   return _customizeResume.apply(this, arguments);
 }
@@ -264,13 +364,13 @@ function customizeCoverLetter(_x5, _x6, _x7) {
   return _customizeCoverLetter.apply(this, arguments);
 } // ─── Resume → Word Doc ────────────────────────────────────────────────────────
 function _customizeCoverLetter() {
-  _customizeCoverLetter = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8(coverLetterText, resumeText, jd) {
-    return _regenerator().w(function (_context8) {
-      while (1) switch (_context8.n) {
+  _customizeCoverLetter = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(coverLetterText, resumeText, jd) {
+    return _regenerator().w(function (_context9) {
+      while (1) switch (_context9.n) {
         case 0:
-          return _context8.a(2, callClaude("You are an expert cover letter writer.\nRewrite this cover letter for the job description below.\nRULES:\n- Use ONLY the candidate's real experience from their resume \u2014 never fabricate\n- Reference specific requirements from the JD and explain how the candidate meets them\n- Keep the same tone and structure as the original\n- Make it feel personal and genuine, not generic\n- Output the complete rewritten cover letter as plain text, ready to copy\n\nCANDIDATE'S RESUME (for context):\n".concat(resumeText.slice(0, 2000), "\n\nCANDIDATE'S ORIGINAL COVER LETTER:\n").concat(coverLetterText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored cover letter now:")));
+          return _context9.a(2, callAI("You are an expert cover letter writer.\nRewrite this cover letter for the job description below.\nRULES:\n- Use ONLY the candidate's real experience from their resume \u2014 never fabricate\n- Reference specific requirements from the JD and explain how the candidate meets them\n- Keep the same tone and structure as the original\n- Make it feel personal and genuine, not generic\n- Output the complete rewritten cover letter as plain text, ready to copy\n\nCANDIDATE'S RESUME (for context):\n".concat(resumeText.slice(0, 2000), "\n\nCANDIDATE'S ORIGINAL COVER LETTER:\n").concat(coverLetterText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored cover letter now:")));
       }
-    }, _callee8);
+    }, _callee9);
   }));
   return _customizeCoverLetter.apply(this, arguments);
 }
@@ -278,13 +378,13 @@ function generateResumeDocx(_x8) {
   return _generateResumeDocx.apply(this, arguments);
 } // ─── UploadBox ────────────────────────────────────────────────────────────────
 function _generateResumeDocx() {
-  _generateResumeDocx = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(resumeText) {
+  _generateResumeDocx = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(resumeText) {
     var _window$docx, Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat, BorderStyle, lines, sectionHeaders, isSectionHeader, isBullet, isJobHeader, children, nameAdded, i, line, bulletText, doc, blob, url, a;
-    return _regenerator().w(function (_context9) {
-      while (1) switch (_context9.n) {
+    return _regenerator().w(function (_context0) {
+      while (1) switch (_context0.n) {
         case 0:
           if (window.docx) {
-            _context9.n = 1;
+            _context0.n = 1;
             break;
           }
           throw new Error("docx library not loaded");
@@ -310,12 +410,12 @@ function _generateResumeDocx() {
           i = 0;
         case 2:
           if (!(i < lines.length)) {
-            _context9.n = 9;
+            _context0.n = 9;
             break;
           }
           line = lines[i];
           if (!(!nameAdded && !isSectionHeader(line) && !isBullet(line))) {
-            _context9.n = 3;
+            _context0.n = 3;
             break;
           }
           children.push(new Paragraph({
@@ -331,10 +431,10 @@ function _generateResumeDocx() {
             })]
           }));
           nameAdded = true;
-          return _context9.a(3, 8);
+          return _context0.a(3, 8);
         case 3:
           if (!(nameAdded && children.length <= 2 && (line.includes("@") || line.includes("+") || /bengaluru|india|dubai/i.test(line)))) {
-            _context9.n = 4;
+            _context0.n = 4;
             break;
           }
           children.push(new Paragraph({
@@ -349,10 +449,10 @@ function _generateResumeDocx() {
               font: "Calibri"
             })]
           }));
-          return _context9.a(3, 8);
+          return _context0.a(3, 8);
         case 4:
           if (!isSectionHeader(line)) {
-            _context9.n = 5;
+            _context0.n = 5;
             break;
           }
           children.push(new Paragraph({
@@ -376,10 +476,10 @@ function _generateResumeDocx() {
               font: "Calibri"
             })]
           }));
-          return _context9.a(3, 8);
+          return _context0.a(3, 8);
         case 5:
           if (!isBullet(line)) {
-            _context9.n = 6;
+            _context0.n = 6;
             break;
           }
           bulletText = line.replace(/^[-•*●▪◦]\s+/, "").replace(/^\d+\.\s+/, "");
@@ -397,10 +497,10 @@ function _generateResumeDocx() {
               font: "Calibri"
             })]
           }));
-          return _context9.a(3, 8);
+          return _context0.a(3, 8);
         case 6:
           if (!isJobHeader(line)) {
-            _context9.n = 7;
+            _context0.n = 7;
             break;
           }
           children.push(new Paragraph({
@@ -415,7 +515,7 @@ function _generateResumeDocx() {
               font: "Calibri"
             })]
           }));
-          return _context9.a(3, 8);
+          return _context0.a(3, 8);
         case 7:
           children.push(new Paragraph({
             spacing: {
@@ -429,7 +529,7 @@ function _generateResumeDocx() {
           }));
         case 8:
           i++;
-          _context9.n = 2;
+          _context0.n = 2;
           break;
         case 9:
           doc = new Document({
@@ -480,10 +580,10 @@ function _generateResumeDocx() {
               children: children
             }]
           });
-          _context9.n = 10;
+          _context0.n = 10;
           return Packer.toBlob(doc);
         case 10:
-          blob = _context9.v;
+          blob = _context0.v;
           url = URL.createObjectURL(blob);
           a = document.createElement("a");
           a.href = url;
@@ -491,9 +591,9 @@ function _generateResumeDocx() {
           a.click();
           URL.revokeObjectURL(url);
         case 11:
-          return _context9.a(2);
+          return _context0.a(2);
       }
-    }, _callee9);
+    }, _callee0);
   }));
   return _generateResumeDocx.apply(this, arguments);
 }
@@ -892,114 +992,493 @@ function ResultPanel(_ref2) {
   }));
 }
 
+// ─── Settings Screen ──────────────────────────────────────────────────────────
+function SettingsScreen(_ref3) {
+  var onSave = _ref3.onSave,
+    existingConfig = _ref3.existingConfig;
+  var _useState9 = useState((existingConfig === null || existingConfig === void 0 ? void 0 : existingConfig.provider) || "claude"),
+    _useState0 = _slicedToArray(_useState9, 2),
+    provider = _useState0[0],
+    setProvider = _useState0[1];
+  var _useState1 = useState((existingConfig === null || existingConfig === void 0 ? void 0 : existingConfig.model) || AI_MODELS.claude.models[0]),
+    _useState10 = _slicedToArray(_useState1, 2),
+    model = _useState10[0],
+    setModel = _useState10[1];
+  var _useState11 = useState((existingConfig === null || existingConfig === void 0 ? void 0 : existingConfig.apiKey) || ""),
+    _useState12 = _slicedToArray(_useState11, 2),
+    apiKey = _useState12[0],
+    setApiKey = _useState12[1];
+  var _useState13 = useState(false),
+    _useState14 = _slicedToArray(_useState13, 2),
+    testing = _useState14[0],
+    setTesting = _useState14[1];
+  var _useState15 = useState(null),
+    _useState16 = _slicedToArray(_useState15, 2),
+    testMsg = _useState16[0],
+    setTestMsg = _useState16[1]; // {ok, msg}
+  var _useState17 = useState(false),
+    _useState18 = _slicedToArray(_useState17, 2),
+    showKey = _useState18[0],
+    setShowKey = _useState18[1];
+  var providerInfo = AI_MODELS[provider];
+  function handleProviderChange(p) {
+    setProvider(p);
+    setModel(AI_MODELS[p].models[0]);
+    setTestMsg(null);
+  }
+  function handleTest() {
+    return _handleTest.apply(this, arguments);
+  }
+  function _handleTest() {
+    _handleTest = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var result, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            if (apiKey.trim()) {
+              _context3.n = 1;
+              break;
+            }
+            setTestMsg({
+              ok: false,
+              msg: "Please enter your API key first"
+            });
+            return _context3.a(2);
+          case 1:
+            setTesting(true);
+            setTestMsg(null);
+            // Temporarily save to test
+            ls.set("ai_provider", provider);
+            ls.set("ai_model", model);
+            ls.set("ai_key", apiKey.trim());
+            _context3.p = 2;
+            _context3.n = 3;
+            return callAI("Reply with exactly: OK");
+          case 3:
+            result = _context3.v;
+            if (result.toLowerCase().includes("ok")) {
+              setTestMsg({
+                ok: true,
+                msg: "✓ Connection successful! Your API key works."
+              });
+            } else {
+              setTestMsg({
+                ok: true,
+                msg: "\u2713 Connected \u2014 got response: \"".concat(result.slice(0, 60), "\"")
+              });
+            }
+            _context3.n = 5;
+            break;
+          case 4:
+            _context3.p = 4;
+            _t3 = _context3.v;
+            setTestMsg({
+              ok: false,
+              msg: _t3.message
+            });
+          case 5:
+            setTesting(false);
+          case 6:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[2, 4]]);
+    }));
+    return _handleTest.apply(this, arguments);
+  }
+  function handleSave() {
+    ls.set("ai_provider", provider);
+    ls.set("ai_model", model);
+    ls.set("ai_key", apiKey.trim());
+    onSave({
+      provider: provider,
+      model: model,
+      apiKey: apiKey.trim()
+    });
+  }
+  var canSave = apiKey.trim().length > 10;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "24px 16px",
+      maxWidth: 560,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 36,
+      marginBottom: 10
+    }
+  }, "\u2699\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 800,
+      fontSize: 22,
+      marginBottom: 6
+    }
+  }, "AI Settings"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#475569",
+      lineHeight: 1.6
+    }
+  }, "Choose your AI model and paste your API key.", /*#__PURE__*/React.createElement("br", null), "Stored locally on your device \u2014 never sent anywhere else.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      color: "#475569",
+      marginBottom: 10
+    }
+  }, "Select AI Provider"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, Object.entries(AI_MODELS).map(function (_ref4) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+      key = _ref5[0],
+      info = _ref5[1];
+    return /*#__PURE__*/React.createElement("button", {
+      key: key,
+      onClick: function onClick() {
+        return handleProviderChange(key);
+      },
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: "14px 16px",
+        background: provider === key ? "#0a1e38" : "#080f1e",
+        border: "2px solid ".concat(provider === key ? "#3b82f6" : "#1e293b"),
+        borderRadius: 10,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        textAlign: "left",
+        transition: "all 0.15s"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 18,
+        height: 18,
+        borderRadius: "50%",
+        flexShrink: 0,
+        border: "2px solid ".concat(provider === key ? "#3b82f6" : "#334155"),
+        background: provider === key ? "#3b82f6" : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, provider === key && /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        background: "white"
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 14,
+        fontWeight: 600,
+        color: provider === key ? "#e2e8f0" : "#94a3b8"
+      }
+    }, info.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#475569",
+        marginTop: 2
+      }
+    }, info.models[0], " \xB7 ", /*#__PURE__*/React.createElement("a", {
+      href: info.docsUrl,
+      target: "_blank",
+      rel: "noreferrer",
+      style: {
+        color: "#3b82f6",
+        textDecoration: "none"
+      }
+    }, "Get API key \u2197"))));
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      color: "#475569",
+      marginBottom: 8
+    }
+  }, "Model"), /*#__PURE__*/React.createElement("select", {
+    value: model,
+    onChange: function onChange(e) {
+      return setModel(e.target.value);
+    },
+    style: {
+      width: "100%",
+      padding: "11px 14px",
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      color: "#e2e8f0",
+      fontFamily: "inherit",
+      fontSize: 14,
+      borderRadius: 10,
+      outline: "none",
+      appearance: "none",
+      WebkitAppearance: "none"
+    }
+  }, providerInfo.models.map(function (m) {
+    return /*#__PURE__*/React.createElement("option", {
+      key: m,
+      value: m
+    }, m);
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      color: "#475569",
+      marginBottom: 8
+    }
+  }, "API Key"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: showKey ? "text" : "password",
+    value: apiKey,
+    onChange: function onChange(e) {
+      setApiKey(e.target.value);
+      setTestMsg(null);
+    },
+    placeholder: providerInfo.placeholder,
+    style: {
+      width: "100%",
+      padding: "11px 44px 11px 14px",
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      color: "#e2e8f0",
+      fontFamily: "'DM Mono',monospace",
+      fontSize: 13,
+      borderRadius: 10,
+      outline: "none",
+      letterSpacing: showKey ? "normal" : "0.1em"
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setShowKey(function (s) {
+        return !s;
+      });
+    },
+    style: {
+      position: "absolute",
+      right: 12,
+      top: "50%",
+      transform: "translateY(-50%)",
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      color: "#475569",
+      fontSize: 16,
+      padding: 0
+    }
+  }, showKey ? "🙈" : "👁")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#334155",
+      marginTop: 6
+    }
+  }, "Get your key from", " ", /*#__PURE__*/React.createElement("a", {
+    href: providerInfo.docsUrl,
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      color: "#3b82f6",
+      textDecoration: "none"
+    }
+  }, providerInfo.docsUrl))), testMsg && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "10px 14px",
+      borderRadius: 8,
+      marginBottom: 16,
+      fontSize: 13,
+      background: testMsg.ok ? "#16532d22" : "#7f1d1d22",
+      border: "1px solid ".concat(testMsg.ok ? "#16532d88" : "#7f1d1d88"),
+      color: testMsg.ok ? "#4ade80" : "#f87171"
+    }
+  }, testMsg.msg), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: handleTest,
+    disabled: testing || !apiKey.trim(),
+    style: {
+      flex: 1,
+      padding: "12px",
+      background: "#1e293b",
+      border: "none",
+      borderRadius: 10,
+      color: "#94a3b8",
+      fontSize: 14,
+      fontWeight: 600,
+      cursor: canSave ? "pointer" : "not-allowed",
+      fontFamily: "inherit",
+      opacity: apiKey.trim() ? 1 : 0.5
+    }
+  }, testing ? "Testing…" : "Test Connection"), /*#__PURE__*/React.createElement("button", {
+    onClick: handleSave,
+    disabled: !canSave,
+    style: {
+      flex: 2,
+      padding: "12px",
+      background: canSave ? "linear-gradient(135deg,#2563eb,#7c3aed)" : "#1e293b",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontSize: 14,
+      fontWeight: 700,
+      cursor: canSave ? "pointer" : "not-allowed",
+      fontFamily: "inherit"
+    }
+  }, "Save & Continue \u2192")));
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 function App() {
-  // mode: null = choose | "both" = resume+CL | "cl_only" = CL only
-  var _useState9 = useState(null),
-    _useState0 = _slicedToArray(_useState9, 2),
-    mode = _useState0[0],
-    setMode = _useState0[1];
-  var _useState1 = useState("upload"),
-    _useState10 = _slicedToArray(_useState1, 2),
-    step = _useState10[0],
-    setStep = _useState10[1]; // upload | jd | results
-  var _useState11 = useState(ls.get("cv_resume_text", "")),
-    _useState12 = _slicedToArray(_useState11, 2),
-    resumeText = _useState12[0],
-    setResumeText = _useState12[1];
-  var _useState13 = useState(ls.get("cv_cover_text", "")),
-    _useState14 = _slicedToArray(_useState13, 2),
-    coverText = _useState14[0],
-    setCoverText = _useState14[1];
-  var _useState15 = useState(""),
-    _useState16 = _slicedToArray(_useState15, 2),
-    jd = _useState16[0],
-    setJd = _useState16[1];
-  var _useState17 = useState(""),
-    _useState18 = _slicedToArray(_useState17, 2),
-    customResume = _useState18[0],
-    setCustomResume = _useState18[1];
-  var _useState19 = useState(""),
+  // screen: "settings" | "mode" | "upload" | "jd" | "results"
+  var initConfig = getAIConfig();
+  var _useState19 = useState(initConfig.apiKey ? "mode" : "settings"),
     _useState20 = _slicedToArray(_useState19, 2),
-    customCover = _useState20[0],
-    setCustomCover = _useState20[1];
-  var _useState21 = useState(false),
+    screen = _useState20[0],
+    setScreen = _useState20[1];
+  var _useState21 = useState(initConfig),
     _useState22 = _slicedToArray(_useState21, 2),
-    loading = _useState22[0],
-    setLoading = _useState22[1];
-  var _useState23 = useState(""),
+    aiConfig = _useState22[0],
+    setAiConfig = _useState22[1];
+  // mode: null = choose | "both" = resume+CL | "cl_only" = CL only
+  var _useState23 = useState(null),
     _useState24 = _slicedToArray(_useState23, 2),
-    genMsg = _useState24[0],
-    setGenMsg = _useState24[1];
-  var _useState25 = useState(null),
+    mode = _useState24[0],
+    setMode = _useState24[1];
+  var _useState25 = useState("upload"),
     _useState26 = _slicedToArray(_useState25, 2),
-    error = _useState26[0],
-    setError = _useState26[1];
-  var _useState27 = useState(false),
+    step = _useState26[0],
+    setStep = _useState26[1]; // upload | jd | results
+  var _useState27 = useState(ls.get("cv_resume_text", "")),
     _useState28 = _slicedToArray(_useState27, 2),
-    resumeLoading = _useState28[0],
-    setResumeLoading = _useState28[1];
-  var _useState29 = useState(false),
+    resumeText = _useState28[0],
+    setResumeText = _useState28[1];
+  var _useState29 = useState(ls.get("cv_cover_text", "")),
     _useState30 = _slicedToArray(_useState29, 2),
-    coverLoading = _useState30[0],
-    setCoverLoading = _useState30[1];
+    coverText = _useState30[0],
+    setCoverText = _useState30[1];
+  var _useState31 = useState(""),
+    _useState32 = _slicedToArray(_useState31, 2),
+    jd = _useState32[0],
+    setJd = _useState32[1];
+  var _useState33 = useState(""),
+    _useState34 = _slicedToArray(_useState33, 2),
+    customResume = _useState34[0],
+    setCustomResume = _useState34[1];
+  var _useState35 = useState(""),
+    _useState36 = _slicedToArray(_useState35, 2),
+    customCover = _useState36[0],
+    setCustomCover = _useState36[1];
+  var _useState37 = useState(false),
+    _useState38 = _slicedToArray(_useState37, 2),
+    loading = _useState38[0],
+    setLoading = _useState38[1];
+  var _useState39 = useState(""),
+    _useState40 = _slicedToArray(_useState39, 2),
+    genMsg = _useState40[0],
+    setGenMsg = _useState40[1];
+  var _useState41 = useState(null),
+    _useState42 = _slicedToArray(_useState41, 2),
+    error = _useState42[0],
+    setError = _useState42[1];
+  var _useState43 = useState(false),
+    _useState44 = _slicedToArray(_useState43, 2),
+    resumeLoading = _useState44[0],
+    setResumeLoading = _useState44[1];
+  var _useState45 = useState(false),
+    _useState46 = _slicedToArray(_useState45, 2),
+    coverLoading = _useState46[0],
+    setCoverLoading = _useState46[1];
   var canProceed = mode === "both" ? resumeText.length > 50 && coverText.length > 50 : coverText.length > 50;
   var canCustomize = canProceed && jd.trim().length > 100;
   function handleCustomize() {
     return _handleCustomize.apply(this, arguments);
   }
   function _handleCustomize() {
-    _handleCustomize = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-      var tailoredResume, tailoredCover, _tailoredCover, _t3;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.p = _context3.n) {
+    _handleCustomize = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+      var tailoredResume, tailoredCover, _tailoredCover, _t4;
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.p = _context4.n) {
           case 0:
             setError(null);
             setLoading(true);
             setStep("results");
             setCustomResume("");
             setCustomCover("");
-            _context3.p = 1;
+            _context4.p = 1;
             if (!(mode === "both")) {
-              _context3.n = 4;
+              _context4.n = 4;
               break;
             }
             setGenMsg("Tailoring your resume to the JD…");
-            _context3.n = 2;
+            _context4.n = 2;
             return customizeResume(resumeText, jd);
           case 2:
-            tailoredResume = _context3.v;
+            tailoredResume = _context4.v;
             setCustomResume(tailoredResume);
             setGenMsg("Rewriting your cover letter…");
-            _context3.n = 3;
+            _context4.n = 3;
             return customizeCoverLetter(coverText, resumeText, jd);
           case 3:
-            tailoredCover = _context3.v;
+            tailoredCover = _context4.v;
             setCustomCover(tailoredCover);
-            _context3.n = 6;
+            _context4.n = 6;
             break;
           case 4:
             setGenMsg("Rewriting your cover letter for this role…");
-            _context3.n = 5;
+            _context4.n = 5;
             return customizeCoverLetter(coverText, resumeText || "", jd);
           case 5:
-            _tailoredCover = _context3.v;
+            _tailoredCover = _context4.v;
             setCustomCover(_tailoredCover);
           case 6:
             setGenMsg("");
-            _context3.n = 8;
+            _context4.n = 8;
             break;
           case 7:
-            _context3.p = 7;
-            _t3 = _context3.v;
-            setError(_t3.message);
+            _context4.p = 7;
+            _t4 = _context4.v;
+            setError(_t4.message);
             setGenMsg("");
           case 8:
             setLoading(false);
           case 9:
-            return _context3.a(2);
+            return _context4.a(2);
         }
-      }, _callee3, null, [[1, 7]]);
+      }, _callee4, null, [[1, 7]]);
     }));
     return _handleCustomize.apply(this, arguments);
   }
@@ -1010,6 +1489,11 @@ function App() {
     setCustomResume("");
     setCustomCover("");
     setError(null);
+    setScreen("mode");
+  }
+  function handleSettingsSave(config) {
+    setAiConfig(config);
+    setScreen("mode");
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1065,7 +1549,37 @@ function App() {
       fontSize: 10,
       color: "#475569"
     }
-  }, "Tailored resume & cover letter")), mode && /*#__PURE__*/React.createElement("button", {
+  }, "Tailored resume & cover letter")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, aiConfig.provider && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      padding: "2px 8px",
+      borderRadius: 10,
+      background: "#1e3a5f",
+      color: "#60a5fa",
+      border: "1px solid #2563eb44"
+    }
+  }, aiConfig.provider === "claude" ? "✦ Claude" : aiConfig.provider === "chatgpt" ? "✦ GPT" : "✦ Gemini"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setScreen("settings");
+    },
+    title: "AI Settings",
+    style: {
+      padding: "6px 10px",
+      background: "#1e293b",
+      border: "none",
+      borderRadius: 8,
+      color: "#94a3b8",
+      fontSize: 16,
+      cursor: "pointer",
+      lineHeight: 1
+    }
+  }, "\u2699\uFE0F"), screen !== "mode" && screen !== "settings" && /*#__PURE__*/React.createElement("button", {
     onClick: handleReset,
     style: {
       padding: "6px 12px",
@@ -1077,13 +1591,18 @@ function App() {
       cursor: "pointer",
       fontFamily: "inherit"
     }
-  }, "\u2190 Start Over"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u2190 Back")))), /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 600,
       margin: "0 auto",
       padding: "20px 16px"
     }
-  }, !mode && /*#__PURE__*/React.createElement("div", {
+  }, screen === "settings" && /*#__PURE__*/React.createElement("div", {
+    className: "fade"
+  }, /*#__PURE__*/React.createElement(SettingsScreen, {
+    existingConfig: aiConfig,
+    onSave: handleSettingsSave
+  })), screen === "mode" && /*#__PURE__*/React.createElement("div", {
     className: "fade"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1118,6 +1637,7 @@ function App() {
     onClick: function onClick() {
       setMode("both");
       setStep("upload");
+      setScreen("upload");
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1150,6 +1670,7 @@ function App() {
     onClick: function onClick() {
       setMode("cl_only");
       setStep("upload");
+      setScreen("upload");
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1177,7 +1698,7 @@ function App() {
       color: "#64748b",
       lineHeight: 1.6
     }
-  }, "Keep your resume as-is and only tailor the cover letter. Upload your cover letter PDF (resume optional for context).")))))), mode && step === "upload" && /*#__PURE__*/React.createElement("div", {
+  }, "Keep your resume as-is and only tailor the cover letter. Upload your cover letter PDF (resume optional for context).")))))), screen === "upload" && /*#__PURE__*/React.createElement("div", {
     className: "fade"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1236,9 +1757,10 @@ function App() {
   }, mode === "both" ? "⬆️ Upload both your resume and cover letter PDFs to continue" : "⬆️ Upload your cover letter PDF to continue"), canProceed && /*#__PURE__*/React.createElement("button", {
     className: "primary-btn",
     onClick: function onClick() {
-      return setStep("jd");
+      setStep("jd");
+      setScreen("jd");
     }
-  }, "Continue \u2192 Paste Job Description")), mode && step === "jd" && /*#__PURE__*/React.createElement("div", {
+  }, "Continue \u2192 Paste Job Description")), screen === "jd" && /*#__PURE__*/React.createElement("div", {
     className: "fade"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1279,7 +1801,8 @@ function App() {
   }, jd.length < 100 ? "".concat(100 - jd.length, " more characters needed") : "\u2713 ".concat(jd.trim().split(/\s+/).length, " words")), /*#__PURE__*/React.createElement("button", {
     className: "btn",
     onClick: function onClick() {
-      return setStep("upload");
+      setStep("upload");
+      setScreen("upload");
     },
     style: {
       padding: "6px 12px",
@@ -1294,7 +1817,7 @@ function App() {
     className: "primary-btn",
     onClick: handleCustomize,
     disabled: !canCustomize
-  }, "\u2726 ", mode === "both" ? "Customize Resume & Cover Letter" : "Customize Cover Letter")), mode && step === "results" && /*#__PURE__*/React.createElement("div", {
+  }, "\u2726 ", mode === "both" ? "Customize Resume & Cover Letter" : "Customize Cover Letter")), screen === "results" && /*#__PURE__*/React.createElement("div", {
     className: "fade"
   }, loading && /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1351,6 +1874,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       setStep("jd");
+      setScreen("jd");
       setJd("");
       setCustomResume("");
       setCustomCover("");
@@ -1474,14 +1998,9 @@ _root.render(React.createElement(App));
 </script>
 
 <script>
-// Service Worker
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () =>
-    navigator.serviceWorker.register('sw.js').catch(() => {})
-  );
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
-
-// PWA install prompt
 let deferredPrompt;
 const banner = document.getElementById('install-banner');
 window.addEventListener('beforeinstallprompt', e => {
@@ -1494,8 +2013,6 @@ document.getElementById('install-btn').addEventListener('click', async () => {
 });
 document.getElementById('dismiss-btn').addEventListener('click', () => banner.classList.remove('show'));
 window.addEventListener('appinstalled', () => { banner.classList.remove('show'); deferredPrompt = null; });
-
-// Offline detection
 const offBar = document.getElementById('offline-bar');
 function updateOnline() { offBar.classList.toggle('show', !navigator.onLine); }
 window.addEventListener('online', updateOnline);
