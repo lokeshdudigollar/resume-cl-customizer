@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ApplyAI"/>
+  <meta name="theme-color" content="#040d1a"/>
+  <meta name="description" content="Tailor your resume and cover letter for any job in seconds"/>
+  <title>ApplyAI</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-512.png"/>
+  <link rel="icon" href="icon-192.png"/>
+  <style>
+    html,body,#root{margin:0;padding:0;width:100%;min-height:100%;background:#040d1a;
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);}
+    #splash{position:fixed;inset:0;background:#040d1a;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s;}
+    #splash.hide{opacity:0;pointer-events:none;}
+    #splash-icon{width:72px;height:72px;border-radius:18px;
+      background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+      display:flex;align-items:center;justify-content:center;
+      font-size:34px;margin-bottom:18px;
+      animation:splashPulse 1.5s ease-in-out infinite;}
+    #splash h1{font-family:system-ui,sans-serif;font-size:28px;font-weight:800;
+      color:#e2e8f0;margin:0 0 6px;letter-spacing:-0.02em;}
+    #splash p{font-family:monospace;color:#475569;font-size:12px;margin:0;}
+    #install-banner{position:fixed;bottom:16px;left:16px;right:16px;
+      background:#0d1f38;border:1px solid #1e3a5f;border-radius:12px;
+      padding:14px 16px;display:none;align-items:center;gap:12px;
+      z-index:500;box-shadow:0 8px 32px #00000088;}
+    #install-banner.show{display:flex;}
+    #install-banner span{flex:1;font-family:monospace;font-size:12px;color:#94a3b8;}
+    #install-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;
+      border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;
+      cursor:pointer;font-family:monospace;white-space:nowrap;}
+    #dismiss-btn{background:transparent;border:none;color:#475569;font-size:18px;
+      cursor:pointer;padding:0 4px;line-height:1;}
+    #offline-bar{display:none;position:fixed;top:0;left:0;right:0;
+      background:#7f1d1d;color:#fca5a5;text-align:center;
+      font-family:monospace;font-size:12px;padding:6px;z-index:1000;}
+    #offline-bar.show{display:block;}
+    @keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  </style>
+</head>
+<body>
+<div id="offline-bar">📡 You're offline — previously loaded content still works</div>
+<div id="splash">
+  <div id="splash-icon">✦</div>
+  <h1>ApplyAI</h1>
+  <p>Loading…</p>
+</div>
+<div id="root"></div>
+<div id="install-banner">
+  <span>📲 Install ApplyAI on your home screen</span>
+  <button id="install-btn">Install</button>
+  <button id="dismiss-btn">✕</button>
+</div>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+<!-- docx.js -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+<!-- App -->
+<script>
+"use strict";
+
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+var _React = React,
+  useState = _React.useState,
+  useCallback = _React.useCallback,
+  useRef = _React.useRef;
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+var CLAUDE_API_KEY = "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";
+var CLAUDE_URL = "https://api.anthropic.com/v1/messages";
+var CLAUDE_MODEL = "claude-haiku-4-5-20251001";
+
+// ─── Storage ──────────────────────────────────────────────────────────────────
+var ls = {
+  get: function get(k) {
+    var fb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    try {
+      var v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : fb;
+    } catch (_unused) {
+      return fb;
+    }
+  },
+  set: function set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch (_unused2) {}
+  },
+  del: function del(k) {
+    try {
+      localStorage.removeItem(k);
+    } catch (_unused3) {}
+  }
+};
+
+// ─── PDF.js extraction ────────────────────────────────────────────────────────
+function extractPdfText(_x) {
+  return _extractPdfText.apply(this, arguments);
+} // ─── Claude API ───────────────────────────────────────────────────────────────
+function _extractPdfText() {
+  _extractPdfText = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(file) {
+    return _regenerator().w(function (_context5) {
+      while (1) switch (_context5.n) {
+        case 0:
+          return _context5.a(2, new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = /*#__PURE__*/function () {
+              var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(e) {
+                var typedArray, pdf, text, i, page, content, _t4;
+                return _regenerator().w(function (_context4) {
+                  while (1) switch (_context4.p = _context4.n) {
+                    case 0:
+                      _context4.p = 0;
+                      typedArray = new Uint8Array(e.target.result);
+                      _context4.n = 1;
+                      return window.pdfjsLib.getDocument({
+                        data: typedArray
+                      }).promise;
+                    case 1:
+                      pdf = _context4.v;
+                      text = "";
+                      i = 1;
+                    case 2:
+                      if (!(i <= pdf.numPages)) {
+                        _context4.n = 6;
+                        break;
+                      }
+                      _context4.n = 3;
+                      return pdf.getPage(i);
+                    case 3:
+                      page = _context4.v;
+                      _context4.n = 4;
+                      return page.getTextContent();
+                    case 4:
+                      content = _context4.v;
+                      text += content.items.map(function (item) {
+                        return item.str;
+                      }).join(" ") + "\n";
+                    case 5:
+                      i++;
+                      _context4.n = 2;
+                      break;
+                    case 6:
+                      if (!(!text.trim() || text.trim().length < 50)) {
+                        _context4.n = 7;
+                        break;
+                      }
+                      throw new Error("Could not extract text — make sure your PDF is text-based, not a scanned image");
+                    case 7:
+                      resolve(text.trim());
+                      _context4.n = 9;
+                      break;
+                    case 8:
+                      _context4.p = 8;
+                      _t4 = _context4.v;
+                      reject(_t4);
+                    case 9:
+                      return _context4.a(2);
+                  }
+                }, _callee4, null, [[0, 8]]);
+              }));
+              return function (_x0) {
+                return _ref3.apply(this, arguments);
+              };
+            }();
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+          }));
+      }
+    }, _callee5);
+  }));
+  return _extractPdfText.apply(this, arguments);
+}
+function callClaude(_x2) {
+  return _callClaude.apply(this, arguments);
+}
+function _callClaude() {
+  _callClaude = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(prompt) {
+    var _data$content;
+    var res, _err$error, err, data;
+    return _regenerator().w(function (_context6) {
+      while (1) switch (_context6.n) {
+        case 0:
+          _context6.n = 1;
+          return fetch(CLAUDE_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": CLAUDE_API_KEY,
+              "anthropic-version": "2023-06-01",
+              "anthropic-dangerous-direct-browser-access": "true"
+            },
+            body: JSON.stringify({
+              model: CLAUDE_MODEL,
+              max_tokens: 2048,
+              messages: [{
+                role: "user",
+                content: prompt
+              }]
+            })
+          });
+        case 1:
+          res = _context6.v;
+          if (res.ok) {
+            _context6.n = 3;
+            break;
+          }
+          _context6.n = 2;
+          return res.json();
+        case 2:
+          err = _context6.v;
+          throw new Error(((_err$error = err.error) === null || _err$error === void 0 ? void 0 : _err$error.message) || "HTTP ".concat(res.status));
+        case 3:
+          _context6.n = 4;
+          return res.json();
+        case 4:
+          data = _context6.v;
+          return _context6.a(2, ((_data$content = data.content) === null || _data$content === void 0 || (_data$content = _data$content[0]) === null || _data$content === void 0 ? void 0 : _data$content.text) || "");
+      }
+    }, _callee6);
+  }));
+  return _callClaude.apply(this, arguments);
+}
+function customizeResume(_x3, _x4) {
+  return _customizeResume.apply(this, arguments);
+}
+function _customizeResume() {
+  _customizeResume = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(resumeText, jd) {
+    return _regenerator().w(function (_context7) {
+      while (1) switch (_context7.n) {
+        case 0:
+          return _context7.a(2, callClaude("You are an expert resume writer.\nTailor this resume for the job description below.\nRULES:\n- Use ONLY the candidate's real experience, skills, and achievements \u2014 never fabricate\n- Reorder bullet points to put the most relevant experience first\n- Reword descriptions using keywords and language from the JD\n- Emphasise skills and technologies that match the JD requirements\n- Keep the same sections and overall structure\n- Output the complete rewritten resume as plain text, ready to copy\n\nCANDIDATE'S RESUME:\n".concat(resumeText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored resume now:")));
+      }
+    }, _callee7);
+  }));
+  return _customizeResume.apply(this, arguments);
+}
+function customizeCoverLetter(_x5, _x6, _x7) {
+  return _customizeCoverLetter.apply(this, arguments);
+} // ─── Resume → Word Doc ────────────────────────────────────────────────────────
+function _customizeCoverLetter() {
+  _customizeCoverLetter = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8(coverLetterText, resumeText, jd) {
+    return _regenerator().w(function (_context8) {
+      while (1) switch (_context8.n) {
+        case 0:
+          return _context8.a(2, callClaude("You are an expert cover letter writer.\nRewrite this cover letter for the job description below.\nRULES:\n- Use ONLY the candidate's real experience from their resume \u2014 never fabricate\n- Reference specific requirements from the JD and explain how the candidate meets them\n- Keep the same tone and structure as the original\n- Make it feel personal and genuine, not generic\n- Output the complete rewritten cover letter as plain text, ready to copy\n\nCANDIDATE'S RESUME (for context):\n".concat(resumeText.slice(0, 2000), "\n\nCANDIDATE'S ORIGINAL COVER LETTER:\n").concat(coverLetterText, "\n\nJOB DESCRIPTION:\n").concat(jd, "\n\nOutput the tailored cover letter now:")));
+      }
+    }, _callee8);
+  }));
+  return _customizeCoverLetter.apply(this, arguments);
+}
+function generateResumeDocx(_x8) {
+  return _generateResumeDocx.apply(this, arguments);
+} // ─── UploadBox ────────────────────────────────────────────────────────────────
+function _generateResumeDocx() {
+  _generateResumeDocx = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(resumeText) {
+    var _window$docx, Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat, BorderStyle, lines, sectionHeaders, isSectionHeader, isBullet, isJobHeader, children, nameAdded, i, line, bulletText, doc, blob, url, a;
+    return _regenerator().w(function (_context9) {
+      while (1) switch (_context9.n) {
+        case 0:
+          if (window.docx) {
+            _context9.n = 1;
+            break;
+          }
+          throw new Error("docx library not loaded");
+        case 1:
+          _window$docx = window.docx, Document = _window$docx.Document, Packer = _window$docx.Packer, Paragraph = _window$docx.Paragraph, TextRun = _window$docx.TextRun, AlignmentType = _window$docx.AlignmentType, LevelFormat = _window$docx.LevelFormat, BorderStyle = _window$docx.BorderStyle;
+          lines = resumeText.split("\n").map(function (l) {
+            return l.trim();
+          }).filter(function (l) {
+            return l.length > 0;
+          });
+          sectionHeaders = new Set(["SUMMARY", "PROFESSIONAL SUMMARY", "WORK EXPERIENCE", "EXPERIENCE", "SKILLS", "TECHNICAL SKILLS", "EDUCATION", "CERTIFICATIONS", "KEY ACHIEVEMENTS", "ACHIEVEMENTS", "HIGHLIGHTS", "LANGUAGES", "STRENGTHS"]);
+          isSectionHeader = function isSectionHeader(l) {
+            return sectionHeaders.has(l.toUpperCase().trim()) || l === l.toUpperCase() && l.length > 3 && l.length < 50 && /^[A-Z\s\/&]+$/.test(l);
+          };
+          isBullet = function isBullet(l) {
+            return /^[-•*●▪◦]\s/.test(l) || /^\d+\.\s/.test(l);
+          };
+          isJobHeader = function isJobHeader(l) {
+            return /\b(20\d{2}|present|current)/i.test(l) && l.length < 120;
+          };
+          children = [];
+          nameAdded = false;
+          i = 0;
+        case 2:
+          if (!(i < lines.length)) {
+            _context9.n = 9;
+            break;
+          }
+          line = lines[i];
+          if (!(!nameAdded && !isSectionHeader(line) && !isBullet(line))) {
+            _context9.n = 3;
+            break;
+          }
+          children.push(new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: {
+              after: 80
+            },
+            children: [new TextRun({
+              text: line,
+              bold: true,
+              size: 52,
+              font: "Calibri"
+            })]
+          }));
+          nameAdded = true;
+          return _context9.a(3, 8);
+        case 3:
+          if (!(nameAdded && children.length <= 2 && (line.includes("@") || line.includes("+") || /bengaluru|india|dubai/i.test(line)))) {
+            _context9.n = 4;
+            break;
+          }
+          children.push(new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: {
+              after: 200
+            },
+            children: [new TextRun({
+              text: line,
+              size: 20,
+              color: "555555",
+              font: "Calibri"
+            })]
+          }));
+          return _context9.a(3, 8);
+        case 4:
+          if (!isSectionHeader(line)) {
+            _context9.n = 5;
+            break;
+          }
+          children.push(new Paragraph({
+            spacing: {
+              before: 280,
+              after: 40
+            },
+            border: {
+              bottom: {
+                style: BorderStyle.SINGLE,
+                size: 8,
+                color: "2E75B6",
+                space: 1
+              }
+            },
+            children: [new TextRun({
+              text: line.toUpperCase(),
+              bold: true,
+              size: 26,
+              color: "2E75B6",
+              font: "Calibri"
+            })]
+          }));
+          return _context9.a(3, 8);
+        case 5:
+          if (!isBullet(line)) {
+            _context9.n = 6;
+            break;
+          }
+          bulletText = line.replace(/^[-•*●▪◦]\s+/, "").replace(/^\d+\.\s+/, "");
+          children.push(new Paragraph({
+            numbering: {
+              reference: "resume-bullets",
+              level: 0
+            },
+            spacing: {
+              after: 60
+            },
+            children: [new TextRun({
+              text: bulletText,
+              size: 20,
+              font: "Calibri"
+            })]
+          }));
+          return _context9.a(3, 8);
+        case 6:
+          if (!isJobHeader(line)) {
+            _context9.n = 7;
+            break;
+          }
+          children.push(new Paragraph({
+            spacing: {
+              before: 160,
+              after: 40
+            },
+            children: [new TextRun({
+              text: line,
+              bold: true,
+              size: 22,
+              font: "Calibri"
+            })]
+          }));
+          return _context9.a(3, 8);
+        case 7:
+          children.push(new Paragraph({
+            spacing: {
+              after: 80
+            },
+            children: [new TextRun({
+              text: line,
+              size: 20,
+              font: "Calibri"
+            })]
+          }));
+        case 8:
+          i++;
+          _context9.n = 2;
+          break;
+        case 9:
+          doc = new Document({
+            numbering: {
+              config: [{
+                reference: "resume-bullets",
+                levels: [{
+                  level: 0,
+                  format: LevelFormat.BULLET,
+                  text: "•",
+                  alignment: AlignmentType.LEFT,
+                  style: {
+                    paragraph: {
+                      indent: {
+                        left: 440,
+                        hanging: 220
+                      }
+                    }
+                  }
+                }]
+              }]
+            },
+            styles: {
+              "default": {
+                document: {
+                  run: {
+                    font: "Calibri",
+                    size: 20
+                  }
+                }
+              }
+            },
+            sections: [{
+              properties: {
+                page: {
+                  size: {
+                    width: 12240,
+                    height: 15840
+                  },
+                  margin: {
+                    top: 900,
+                    right: 1080,
+                    bottom: 900,
+                    left: 1080
+                  }
+                }
+              },
+              children: children
+            }]
+          });
+          _context9.n = 10;
+          return Packer.toBlob(doc);
+        case 10:
+          blob = _context9.v;
+          url = URL.createObjectURL(blob);
+          a = document.createElement("a");
+          a.href = url;
+          a.download = "tailored_resume.docx";
+          a.click();
+          URL.revokeObjectURL(url);
+        case 11:
+          return _context9.a(2);
+      }
+    }, _callee9);
+  }));
+  return _generateResumeDocx.apply(this, arguments);
+}
+function UploadBox(_ref) {
+  var label = _ref.label,
+    icon = _ref.icon,
+    text = _ref.text,
+    setText = _ref.setText,
+    loading = _ref.loading,
+    setLoading = _ref.setLoading,
+    storageKey = _ref.storageKey;
+  var _useState = useState(ls.get(storageKey + "_name", null)),
+    _useState2 = _slicedToArray(_useState, 2),
+    fileName = _useState2[0],
+    setFileName = _useState2[1];
+  var _useState3 = useState(null),
+    _useState4 = _slicedToArray(_useState3, 2),
+    error = _useState4[0],
+    setError = _useState4[1];
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    dragging = _useState6[0],
+    setDragging = _useState6[1];
+  var inputRef = useRef();
+
+  // Load from storage on mount
+  useState(function () {
+    var saved = ls.get(storageKey);
+    if (saved && !text) setText(saved);
+  });
+  function processFile(_x9) {
+    return _processFile.apply(this, arguments);
+  }
+  function _processFile() {
+    _processFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(file) {
+      var extracted, _t;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.p = _context.n) {
+          case 0:
+            if (!(!file || file.type !== "application/pdf")) {
+              _context.n = 1;
+              break;
+            }
+            setError("Please upload a PDF file");
+            return _context.a(2);
+          case 1:
+            if (!(file.size > 20 * 1024 * 1024)) {
+              _context.n = 2;
+              break;
+            }
+            setError("File too large — max 20MB");
+            return _context.a(2);
+          case 2:
+            setError(null);
+            setLoading(true);
+            _context.p = 3;
+            _context.n = 4;
+            return extractPdfText(file);
+          case 4:
+            extracted = _context.v;
+            setText(extracted);
+            setFileName(file.name);
+            ls.set(storageKey, extracted);
+            ls.set(storageKey + "_name", file.name);
+            _context.n = 6;
+            break;
+          case 5:
+            _context.p = 5;
+            _t = _context.v;
+            setError(_t.message);
+          case 6:
+            setLoading(false);
+          case 7:
+            return _context.a(2);
+        }
+      }, _callee, null, [[3, 5]]);
+    }));
+    return _processFile.apply(this, arguments);
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    setDragging(false);
+    processFile(e.dataTransfer.files[0]);
+  }
+  function clearFile() {
+    setText("");
+    setFileName(null);
+    setError(null);
+    ls.del(storageKey);
+    ls.del(storageKey + "_name");
+    if (inputRef.current) inputRef.current.value = "";
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#94a3b8",
+      marginBottom: 8,
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 18
+    }
+  }, icon), " ", label, text && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      padding: "2px 8px",
+      borderRadius: 10,
+      background: "#16532d22",
+      color: "#4ade80",
+      border: "1px solid #16532d44",
+      fontWeight: 700
+    }
+  }, "\u2713 LOADED")), /*#__PURE__*/React.createElement("div", {
+    onClick: function onClick() {
+      var _inputRef$current;
+      return !text && ((_inputRef$current = inputRef.current) === null || _inputRef$current === void 0 ? void 0 : _inputRef$current.click());
+    },
+    onDragOver: function onDragOver(e) {
+      e.preventDefault();
+      setDragging(true);
+    },
+    onDragLeave: function onDragLeave() {
+      return setDragging(false);
+    },
+    onDrop: onDrop,
+    style: {
+      border: "2px dashed ".concat(dragging ? "#3b82f6" : text ? "#16532d88" : "#1e3a5f"),
+      borderRadius: 10,
+      padding: "16px",
+      textAlign: "center",
+      cursor: text ? "default" : "pointer",
+      background: dragging ? "#1e3a5f22" : text ? "#0a1e1022" : "#0a1628",
+      transition: "all 0.2s"
+    }
+  }, loading ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#60a5fa",
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      animation: "spin 1s linear infinite",
+      display: "inline-block",
+      marginBottom: 6
+    }
+  }, "\u27F3"), /*#__PURE__*/React.createElement("div", null, "Extracting from PDF\u2026")) : text ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18,
+      marginBottom: 4
+    }
+  }, "\uD83D\uDCC4"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#4ade80",
+      fontWeight: 600
+    }
+  }, fileName), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#475569",
+      marginTop: 2
+    }
+  }, text.length.toLocaleString(), " characters extracted")) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 26,
+      marginBottom: 6,
+      opacity: 0.4
+    }
+  }, "\u2B06\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#64748b"
+    }
+  }, "Tap to upload or drop PDF"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#334155",
+      marginTop: 2
+    }
+  }, "PDF only \xB7 Max 20MB"))), /*#__PURE__*/React.createElement("input", {
+    ref: inputRef,
+    type: "file",
+    accept: ".pdf",
+    style: {
+      display: "none"
+    },
+    onChange: function onChange(e) {
+      return processFile(e.target.files[0]);
+    }
+  }), text && !loading && /*#__PURE__*/React.createElement("button", {
+    onClick: clearFile,
+    style: {
+      marginTop: 8,
+      width: "100%",
+      padding: "7px",
+      background: "transparent",
+      border: "1px solid #7f1d1d88",
+      borderRadius: 8,
+      color: "#f87171",
+      fontSize: 12,
+      cursor: "pointer",
+      fontFamily: "inherit"
+    }
+  }, "\uD83D\uDDD1 Remove & upload different file"), error && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#f87171",
+      marginTop: 8,
+      padding: "8px 12px",
+      background: "#7f1d1d22",
+      borderRadius: 6
+    }
+  }, "\u26A0\uFE0F ", error), text && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      color: "#475569",
+      marginBottom: 4
+    }
+  }, "Extracted Text (editable)"), /*#__PURE__*/React.createElement("textarea", {
+    value: text,
+    onChange: function onChange(e) {
+      setText(e.target.value);
+      ls.set(storageKey, e.target.value);
+    },
+    style: {
+      width: "100%",
+      minHeight: 100,
+      fontFamily: "'DM Mono',monospace",
+      fontSize: 11,
+      lineHeight: 1.6,
+      background: "#061122",
+      border: "1px solid #1e293b",
+      color: "#94a3b8",
+      borderRadius: 8,
+      padding: 10,
+      resize: "vertical",
+      outline: "none"
+    }
+  })));
+}
+
+// ─── Result Panel ─────────────────────────────────────────────────────────────
+function ResultPanel(_ref2) {
+  var title = _ref2.title,
+    content = _ref2.content,
+    setContent = _ref2.setContent,
+    icon = _ref2.icon,
+    isResume = _ref2.isResume;
+  var _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    copied = _useState8[0],
+    setCopied = _useState8[1];
+  function copy() {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(function () {
+      return setCopied(false);
+    }, 2000);
+  }
+  function downloadTxt() {
+    var blob = new Blob([content], {
+      type: "text/plain"
+    });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "".concat(title.toLowerCase().replace(/\s+/g, "_"), ".txt");
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  function downloadDocx() {
+    return _downloadDocx.apply(this, arguments);
+  }
+  function _downloadDocx() {
+    _downloadDocx = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      var _t2;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            _context2.p = 0;
+            _context2.n = 1;
+            return generateResumeDocx(content);
+          case 1:
+            _context2.n = 3;
+            break;
+          case 2:
+            _context2.p = 2;
+            _t2 = _context2.v;
+            alert("Could not generate Word doc: " + _t2.message);
+          case 3:
+            return _context2.a(2);
+        }
+      }, _callee2, null, [[0, 2]]);
+    }));
+    return _downloadDocx.apply(this, arguments);
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      borderRadius: 12,
+      overflow: "hidden",
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "12px 14px",
+      borderBottom: "1px solid #1e293b",
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, icon), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 14,
+      flex: 1
+    }
+  }, title), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    style: {
+      padding: "5px 12px",
+      borderRadius: 6,
+      fontSize: 12,
+      cursor: "pointer",
+      border: "none",
+      fontFamily: "inherit",
+      background: copied ? "#16a34a" : "#1e293b",
+      color: copied ? "white" : "#94a3b8",
+      transition: "all 0.2s"
+    }
+  }, copied ? "✓ Copied" : "📋 Copy"), isResume ? /*#__PURE__*/React.createElement("button", {
+    onClick: downloadDocx,
+    style: {
+      padding: "5px 12px",
+      borderRadius: 6,
+      fontSize: 12,
+      cursor: "pointer",
+      border: "none",
+      fontFamily: "inherit",
+      background: "linear-gradient(135deg,#2563eb,#7c3aed)",
+      color: "white",
+      fontWeight: 600
+    }
+  }, "\u2B07\uFE0F Word Doc") : /*#__PURE__*/React.createElement("button", {
+    onClick: downloadTxt,
+    style: {
+      padding: "5px 12px",
+      borderRadius: 6,
+      fontSize: 12,
+      cursor: "pointer",
+      border: "none",
+      fontFamily: "inherit",
+      background: "#1e293b",
+      color: "#94a3b8"
+    }
+  }, "\u2B07\uFE0F TXT")), /*#__PURE__*/React.createElement("textarea", {
+    value: content,
+    onChange: function onChange(e) {
+      return setContent(e.target.value);
+    },
+    style: {
+      width: "100%",
+      minHeight: 320,
+      fontFamily: "'DM Mono',monospace",
+      fontSize: 12,
+      lineHeight: 1.7,
+      background: "transparent",
+      border: "none",
+      color: "#cbd5e1",
+      padding: 14,
+      resize: "vertical",
+      outline: "none"
+    }
+  }));
+}
+
+// ─── Main App ─────────────────────────────────────────────────────────────────
+function App() {
+  // mode: null = choose | "both" = resume+CL | "cl_only" = CL only
+  var _useState9 = useState(null),
+    _useState0 = _slicedToArray(_useState9, 2),
+    mode = _useState0[0],
+    setMode = _useState0[1];
+  var _useState1 = useState("upload"),
+    _useState10 = _slicedToArray(_useState1, 2),
+    step = _useState10[0],
+    setStep = _useState10[1]; // upload | jd | results
+  var _useState11 = useState(ls.get("cv_resume_text", "")),
+    _useState12 = _slicedToArray(_useState11, 2),
+    resumeText = _useState12[0],
+    setResumeText = _useState12[1];
+  var _useState13 = useState(ls.get("cv_cover_text", "")),
+    _useState14 = _slicedToArray(_useState13, 2),
+    coverText = _useState14[0],
+    setCoverText = _useState14[1];
+  var _useState15 = useState(""),
+    _useState16 = _slicedToArray(_useState15, 2),
+    jd = _useState16[0],
+    setJd = _useState16[1];
+  var _useState17 = useState(""),
+    _useState18 = _slicedToArray(_useState17, 2),
+    customResume = _useState18[0],
+    setCustomResume = _useState18[1];
+  var _useState19 = useState(""),
+    _useState20 = _slicedToArray(_useState19, 2),
+    customCover = _useState20[0],
+    setCustomCover = _useState20[1];
+  var _useState21 = useState(false),
+    _useState22 = _slicedToArray(_useState21, 2),
+    loading = _useState22[0],
+    setLoading = _useState22[1];
+  var _useState23 = useState(""),
+    _useState24 = _slicedToArray(_useState23, 2),
+    genMsg = _useState24[0],
+    setGenMsg = _useState24[1];
+  var _useState25 = useState(null),
+    _useState26 = _slicedToArray(_useState25, 2),
+    error = _useState26[0],
+    setError = _useState26[1];
+  var _useState27 = useState(false),
+    _useState28 = _slicedToArray(_useState27, 2),
+    resumeLoading = _useState28[0],
+    setResumeLoading = _useState28[1];
+  var _useState29 = useState(false),
+    _useState30 = _slicedToArray(_useState29, 2),
+    coverLoading = _useState30[0],
+    setCoverLoading = _useState30[1];
+  var canProceed = mode === "both" ? resumeText.length > 50 && coverText.length > 50 : coverText.length > 50;
+  var canCustomize = canProceed && jd.trim().length > 100;
+  function handleCustomize() {
+    return _handleCustomize.apply(this, arguments);
+  }
+  function _handleCustomize() {
+    _handleCustomize = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var tailoredResume, tailoredCover, _tailoredCover, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            setError(null);
+            setLoading(true);
+            setStep("results");
+            setCustomResume("");
+            setCustomCover("");
+            _context3.p = 1;
+            if (!(mode === "both")) {
+              _context3.n = 4;
+              break;
+            }
+            setGenMsg("Tailoring your resume to the JD…");
+            _context3.n = 2;
+            return customizeResume(resumeText, jd);
+          case 2:
+            tailoredResume = _context3.v;
+            setCustomResume(tailoredResume);
+            setGenMsg("Rewriting your cover letter…");
+            _context3.n = 3;
+            return customizeCoverLetter(coverText, resumeText, jd);
+          case 3:
+            tailoredCover = _context3.v;
+            setCustomCover(tailoredCover);
+            _context3.n = 6;
+            break;
+          case 4:
+            setGenMsg("Rewriting your cover letter for this role…");
+            _context3.n = 5;
+            return customizeCoverLetter(coverText, resumeText || "", jd);
+          case 5:
+            _tailoredCover = _context3.v;
+            setCustomCover(_tailoredCover);
+          case 6:
+            setGenMsg("");
+            _context3.n = 8;
+            break;
+          case 7:
+            _context3.p = 7;
+            _t3 = _context3.v;
+            setError(_t3.message);
+            setGenMsg("");
+          case 8:
+            setLoading(false);
+          case 9:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[1, 7]]);
+    }));
+    return _handleCustomize.apply(this, arguments);
+  }
+  function handleReset() {
+    setMode(null);
+    setStep("upload");
+    setJd("");
+    setCustomResume("");
+    setCustomCover("");
+    setError(null);
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: "#040d1a",
+      color: "#e2e8f0",
+      fontFamily: "'DM Mono','Fira Code',monospace"
+    }
+  }, /*#__PURE__*/React.createElement("style", null, "\n        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap');\n        *{box-sizing:border-box;margin:0;padding:0;}\n        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#0a1628}::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:3px}\n        @keyframes spin{to{transform:rotate(360deg)}}\n        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}\n        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}\n        .fade{animation:fadeIn 0.25s ease;}\n        textarea,input{outline:none;-webkit-appearance:none;}\n        textarea:focus,input:focus{border-color:#3b82f6!important;}\n        .mode-btn{cursor:pointer;border:2px solid #1e3a5f;border-radius:14px;padding:24px 20px;background:#080f1e;transition:all 0.2s;text-align:left;font-family:inherit;width:100%;-webkit-tap-highlight-color:transparent;}\n        .mode-btn:hover,.mode-btn:active{border-color:#3b82f6;background:#0a1e38;}\n        .primary-btn{cursor:pointer;border:none;border-radius:10px;padding:13px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;font-size:15px;font-weight:700;font-family:inherit;width:100%;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}\n        .primary-btn:disabled{opacity:0.4;cursor:not-allowed;}\n        textarea{background:#061122;border:1px solid #1e293b;color:#e2e8f0;font-family:'DM Mono',monospace;font-size:15px;padding:12px;border-radius:10px;width:100%;resize:vertical;line-height:1.6;}\n      "), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderBottom: "1px solid #1e293b",
+      background: "#040d1a",
+      position: "sticky",
+      top: 0,
+      zIndex: 50,
+      padding: "0 16px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 600,
+      margin: "0 auto",
+      height: 52,
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      background: "linear-gradient(135deg,#3b82f6,#8b5cf6)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 17,
+      flexShrink: 0
+    }
+  }, "\u2726"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 800,
+      fontSize: 18,
+      letterSpacing: "-0.02em",
+      lineHeight: 1
+    }
+  }, "ApplyAI"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#475569"
+    }
+  }, "Tailored resume & cover letter")), mode && /*#__PURE__*/React.createElement("button", {
+    onClick: handleReset,
+    style: {
+      padding: "6px 12px",
+      background: "#1e293b",
+      border: "none",
+      borderRadius: 8,
+      color: "#94a3b8",
+      fontSize: 12,
+      cursor: "pointer",
+      fontFamily: "inherit"
+    }
+  }, "\u2190 Start Over"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 600,
+      margin: "0 auto",
+      padding: "20px 16px"
+    }
+  }, !mode && /*#__PURE__*/React.createElement("div", {
+    className: "fade"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 36,
+      marginBottom: 12
+    }
+  }, "\u2726"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 800,
+      fontSize: 22,
+      marginBottom: 6
+    }
+  }, "What do you need?"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#475569"
+    }
+  }, "Choose how you want to customize your application")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-btn",
+    onClick: function onClick() {
+      setMode("both");
+      setStep("upload");
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 28,
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }, "\uD83D\uDCC4\u2709\uFE0F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 16,
+      marginBottom: 4,
+      color: "#e2e8f0"
+    }
+  }, "Customize Resume + Cover Letter"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#64748b",
+      lineHeight: 1.6
+    }
+  }, "Tailor both your resume and cover letter to match the job description. Upload both PDFs.")))), /*#__PURE__*/React.createElement("button", {
+    className: "mode-btn",
+    onClick: function onClick() {
+      setMode("cl_only");
+      setStep("upload");
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 28,
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }, "\u2709\uFE0F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 16,
+      marginBottom: 4,
+      color: "#e2e8f0"
+    }
+  }, "Customize Cover Letter Only"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#64748b",
+      lineHeight: 1.6
+    }
+  }, "Keep your resume as-is and only tailor the cover letter. Upload your cover letter PDF (resume optional for context).")))))), mode && step === "upload" && /*#__PURE__*/React.createElement("div", {
+    className: "fade"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 18,
+      marginBottom: 4
+    }
+  }, mode === "both" ? "Upload Your Documents" : "Upload Your Cover Letter"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#475569"
+    }
+  }, "Stored in your browser \u2014 upload once, reuse forever")), mode === "both" && /*#__PURE__*/React.createElement(UploadBox, {
+    label: "Resume / CV",
+    icon: "\uD83D\uDCC4",
+    text: resumeText,
+    setText: setResumeText,
+    loading: resumeLoading,
+    setLoading: setResumeLoading,
+    storageKey: "cv_resume_text"
+  }), /*#__PURE__*/React.createElement(UploadBox, {
+    label: "Cover Letter",
+    icon: "\u2709\uFE0F",
+    text: coverText,
+    setText: setCoverText,
+    loading: coverLoading,
+    setLoading: setCoverLoading,
+    storageKey: "cv_cover_text"
+  }), mode === "cl_only" && !resumeText && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement(UploadBox, {
+    label: "Resume (optional \u2014 helps tailor the cover letter)",
+    icon: "\uD83D\uDCC4",
+    text: resumeText,
+    setText: setResumeText,
+    loading: resumeLoading,
+    setLoading: setResumeLoading,
+    storageKey: "cv_resume_text"
+  })), !canProceed && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "10px 14px",
+      background: "#1a1000",
+      border: "1px solid #78350f44",
+      borderRadius: 8,
+      fontSize: 12,
+      color: "#fbbf24",
+      marginBottom: 16
+    }
+  }, mode === "both" ? "⬆️ Upload both your resume and cover letter PDFs to continue" : "⬆️ Upload your cover letter PDF to continue"), canProceed && /*#__PURE__*/React.createElement("button", {
+    className: "primary-btn",
+    onClick: function onClick() {
+      return setStep("jd");
+    }
+  }, "Continue \u2192 Paste Job Description")), mode && step === "jd" && /*#__PURE__*/React.createElement("div", {
+    className: "fade"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 18,
+      marginBottom: 4
+    }
+  }, "Paste the Job Description"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#475569"
+    }
+  }, "The more detail you provide, the better the tailoring")), /*#__PURE__*/React.createElement("textarea", {
+    value: jd,
+    onChange: function onChange(e) {
+      return setJd(e.target.value);
+    },
+    rows: 10,
+    placeholder: "Paste the full job description here…\n\nExample:\nWe are looking for a Senior Software Engineer with 5+ years of experience in Node.js, React and AWS. The ideal candidate will lead backend architecture decisions, mentor junior engineers…"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: 10,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: jd.length < 100 ? "#64748b" : "#4ade80"
+    }
+  }, jd.length < 100 ? "".concat(100 - jd.length, " more characters needed") : "\u2713 ".concat(jd.trim().split(/\s+/).length, " words")), /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: function onClick() {
+      return setStep("upload");
+    },
+    style: {
+      padding: "6px 12px",
+      background: "transparent",
+      border: "none",
+      color: "#475569",
+      fontSize: 12,
+      cursor: "pointer",
+      fontFamily: "inherit"
+    }
+  }, "\u2190 Back")), /*#__PURE__*/React.createElement("button", {
+    className: "primary-btn",
+    onClick: handleCustomize,
+    disabled: !canCustomize
+  }, "\u2726 ", mode === "both" ? "Customize Resume & Cover Letter" : "Customize Cover Letter")), mode && step === "results" && /*#__PURE__*/React.createElement("div", {
+    className: "fade"
+  }, loading && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "40px 20px",
+      marginBottom: 20,
+      background: "#080f1e",
+      border: "1px solid #1e293b",
+      borderRadius: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 34,
+      animation: "spin 1.5s linear infinite",
+      display: "inline-block",
+      marginBottom: 14
+    }
+  }, "\u2726"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 700,
+      fontSize: 17,
+      marginBottom: 6
+    }
+  }, "Customizing your application"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#60a5fa",
+      animation: "pulse 1.5s ease-in-out infinite"
+    }
+  }, genMsg)), error && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "12px 14px",
+      background: "#7f1d1d22",
+      border: "1px solid #7f1d1d",
+      borderRadius: 10,
+      marginBottom: 16,
+      fontSize: 13,
+      color: "#f87171"
+    }
+  }, "\u26A0\uFE0F ", error, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      marginTop: 6,
+      color: "#94a3b8"
+    }
+  }, "Check your API key is valid and has available credits.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      marginBottom: 16,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      setStep("jd");
+      setJd("");
+      setCustomResume("");
+      setCustomCover("");
+    },
+    style: {
+      padding: "7px 14px",
+      background: "#1e293b",
+      border: "none",
+      borderRadius: 8,
+      color: "#94a3b8",
+      fontSize: 12,
+      cursor: "pointer",
+      fontFamily: "inherit"
+    }
+  }, "\u2726 Try Different JD"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), !loading && (customResume || customCover) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#4ade80",
+      display: "flex",
+      alignItems: "center"
+    }
+  }, "\u2713 Review, edit, then copy or download")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "8px 12px",
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      borderRadius: 8,
+      marginBottom: 16,
+      fontSize: 11,
+      color: "#475569"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#334155"
+    }
+  }, "JD: "), jd.slice(0, 160), jd.length > 160 ? "…" : ""), mode === "both" && (customResume ? /*#__PURE__*/React.createElement(ResultPanel, {
+    title: "Tailored Resume",
+    icon: "\uD83D\uDCC4",
+    content: customResume,
+    setContent: setCustomResume,
+    isResume: true
+  }) : loading && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      borderRadius: 12,
+      padding: 24,
+      marginBottom: 16,
+      textAlign: "center",
+      color: "#334155"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      animation: "spin 1s linear infinite",
+      display: "inline-block"
+    }
+  }, "\u27F3"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 12
+    }
+  }, "Tailoring resume\u2026"))), customCover ? /*#__PURE__*/React.createElement(ResultPanel, {
+    title: "Tailored Cover Letter",
+    icon: "\u2709\uFE0F",
+    content: customCover,
+    setContent: setCustomCover,
+    isResume: false
+  }) : loading && (mode === "cl_only" || customResume) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0a1628",
+      border: "1px solid #1e293b",
+      borderRadius: 12,
+      padding: 24,
+      marginBottom: 16,
+      textAlign: "center",
+      color: "#334155"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      animation: "spin 1s linear infinite",
+      display: "inline-block"
+    }
+  }, "\u27F3"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 12
+    }
+  }, "Writing cover letter\u2026")))));
+}
+var _root = ReactDOM.createRoot(document.getElementById("root"));
+_root.render(React.createElement(App));
+(function hideSplash() {
+  var check = setInterval(function () {
+    var root = document.getElementById("root");
+    var s = document.getElementById("splash");
+    if (!s) {
+      clearInterval(check);
+      return;
+    }
+    if (root && root.children.length > 0) {
+      clearInterval(check);
+      s.classList.add("hide");
+      setTimeout(function () {
+        return s && s.remove();
+      }, 600);
+    }
+  }, 150);
+  setTimeout(function () {
+    clearInterval(check);
+    var s = document.getElementById("splash");
+    s && s.remove();
+  }, 8000);
+})();
+
+</script>
+
+<script>
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () =>
+    navigator.serviceWorker.register('sw.js').catch(() => {})
+  );
+}
+
+// PWA install prompt
+let deferredPrompt;
+const banner = document.getElementById('install-banner');
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  setTimeout(() => banner.classList.add('show'), 5000);
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  banner.classList.remove('show');
+  if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+});
+document.getElementById('dismiss-btn').addEventListener('click', () => banner.classList.remove('show'));
+window.addEventListener('appinstalled', () => { banner.classList.remove('show'); deferredPrompt = null; });
+
+// Offline detection
+const offBar = document.getElementById('offline-bar');
+function updateOnline() { offBar.classList.toggle('show', !navigator.onLine); }
+window.addEventListener('online', updateOnline);
+window.addEventListener('offline', updateOnline);
+updateOnline();
+</script>
+</body>
+</html>

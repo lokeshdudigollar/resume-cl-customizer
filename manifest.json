@@ -1,0 +1,14 @@
+{
+  "name": "ApplyAI",
+  "short_name": "ApplyAI",
+  "description": "Tailor your resume and cover letter for any job in seconds",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#040d1a",
+  "theme_color": "#040d1a",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
