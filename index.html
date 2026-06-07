@@ -133,7 +133,7 @@ function _extractPdfText() {
           return _context6.a(2, new Promise(function (resolve, reject) {
             var reader = new FileReader();
             reader.onload = /*#__PURE__*/function () {
-              var _ref7 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+              var _ref8 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
                 var typedArray, pdf, text, i, page, content, _t5;
                 return _regenerator().w(function (_context5) {
                   while (1) switch (_context5.p = _context5.n) {
@@ -188,7 +188,7 @@ function _extractPdfText() {
                 }, _callee5, null, [[0, 8]]);
               }));
               return function (_x0) {
-                return _ref7.apply(this, arguments);
+                return _ref8.apply(this, arguments);
               };
             }();
             reader.onerror = reject;
@@ -1573,6 +1573,325 @@ function SettingsScreen(_ref4) {
   }, "Save & Continue \u2192")));
 }
 
+// ─── Donate Modal ─────────────────────────────────────────────────────────────
+function DonateModal(_ref7) {
+  var onClose = _ref7.onClose;
+  return /*#__PURE__*/React.createElement("div", {
+    onClick: onClose,
+    style: {
+      position: "fixed",
+      inset: 0,
+      background: "#000000cc",
+      zIndex: 200,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: function onClick(e) {
+      return e.stopPropagation();
+    },
+    style: {
+      background: "#0d1f38",
+      border: "1px solid #1e3a5f",
+      borderRadius: 16,
+      padding: 28,
+      maxWidth: 320,
+      width: "100%",
+      textAlign: "center",
+      boxShadow: "0 24px 64px #00000088",
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    style: {
+      position: "absolute",
+      top: 12,
+      right: 14,
+      background: "none",
+      border: "none",
+      color: "#475569",
+      fontSize: 20,
+      cursor: "pointer",
+      lineHeight: 1
+    }
+  }, "\u2715"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 32,
+      marginBottom: 10
+    }
+  }, "\u2615"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne',sans-serif",
+      fontWeight: 800,
+      fontSize: 18,
+      marginBottom: 6,
+      color: "#e2e8f0"
+    }
+  }, "Buy me a coffee"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#64748b",
+      marginBottom: 20,
+      lineHeight: 1.6
+    }
+  }, "If ApplyAI helped you land an interview,", /*#__PURE__*/React.createElement("br", null), "a small tip means the world!"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "white",
+      borderRadius: 12,
+      padding: 12,
+      display: "inline-block",
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "160",
+    height: "160",
+    viewBox: "0 0 160 160",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "10",
+    y: "10",
+    width: "50",
+    height: "50",
+    fill: "none",
+    stroke: "#000",
+    strokeWidth: "6"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "20",
+    y: "20",
+    width: "30",
+    height: "30",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "100",
+    y: "10",
+    width: "50",
+    height: "50",
+    fill: "none",
+    stroke: "#000",
+    strokeWidth: "6"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "110",
+    y: "20",
+    width: "30",
+    height: "30",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "10",
+    y: "100",
+    width: "50",
+    height: "50",
+    fill: "none",
+    stroke: "#000",
+    strokeWidth: "6"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "20",
+    y: "110",
+    width: "30",
+    height: "30",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "75",
+    y: "10",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "87",
+    y: "10",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "75",
+    y: "22",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "87",
+    y: "34",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "75",
+    y: "46",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "10",
+    y: "75",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "22",
+    y: "75",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "34",
+    y: "87",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "46",
+    y: "75",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "58",
+    y: "87",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "70",
+    y: "70",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "82",
+    y: "70",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "94",
+    y: "82",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "106",
+    y: "70",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "118",
+    y: "82",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "130",
+    y: "70",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "142",
+    y: "70",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "70",
+    y: "94",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "94",
+    y: "94",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "106",
+    y: "106",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "118",
+    y: "94",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "130",
+    y: "106",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "142",
+    y: "94",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "70",
+    y: "118",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "82",
+    y: "130",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "94",
+    y: "118",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "118",
+    y: "118",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "130",
+    y: "130",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "142",
+    y: "118",
+    width: "8",
+    height: "8",
+    fill: "#000"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "68",
+    y: "68",
+    width: "24",
+    height: "24",
+    rx: "4",
+    fill: "#3b82f6"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: "80",
+    y: "83",
+    textAnchor: "middle",
+    fill: "white",
+    fontSize: "12",
+    fontWeight: "bold"
+  }, "\u2726"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#334155",
+      lineHeight: 1.6
+    }
+  }, "Scan with any UPI app or PayPal", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#475569"
+    }
+  }, "or share this app with a friend \uD83D\uDE4F"))));
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 function App() {
   // screen: "home" | "settings" | "mode" | "upload" | "jd" | "results"
@@ -1636,6 +1955,10 @@ function App() {
     _useState46 = _slicedToArray(_useState45, 2),
     coverLoading = _useState46[0],
     setCoverLoading = _useState46[1];
+  var _useState47 = useState(false),
+    _useState48 = _slicedToArray(_useState47, 2),
+    showDonate = _useState48[0],
+    setShowDonate = _useState48[1];
   var canProceed = mode === "both" ? resumeText.length > 50 && coverText.length > 50 : coverText.length > 50;
   var canCustomize = canProceed && jd.trim().length > 100;
   function handleCustomize() {
@@ -1959,7 +2282,7 @@ function App() {
       color: "#64748b"
     }
   }, "Need a template? "), /*#__PURE__*/React.createElement("a", {
-    href: "https://docs.google.com/document/d/1DaOmVmZXTaMkxcMcSLKiX2vdcp__cUoP/edit?usp=drive_link&ouid=116244776009877834710&rtpof=true&sd=true",
+    href: "https://docs.google.com/document/d/1sGCVJnqUllBh5Mvue1bKbLRWHHuCDpW2X2Y5ND5VHLY/export?format=docx",
     download: "sample_resume_template.docx",
     target: "_blank",
     rel: "noreferrer",
@@ -2117,12 +2440,42 @@ function App() {
       marginTop: 6,
       color: "#94a3b8"
     }
-  }, "Check your API key is valid and has available credits.")), /*#__PURE__*/React.createElement("div", {
+  }, "Check your API key is valid and has available credits.")), !loading && (customResume || customCover) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: "#475569"
+    }
+  }, "Found it useful?"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setShowDonate(true);
+    },
+    style: {
+      padding: "5px 12px",
+      background: "linear-gradient(135deg,#f59e0b,#ef4444)",
+      border: "none",
+      borderRadius: 20,
+      color: "white",
+      fontSize: 11,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: "inherit",
+      letterSpacing: "0.02em"
+    }
+  }, "\u2615 Please donate")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 10,
       marginBottom: 16,
-      flexWrap: "wrap"
+      flexWrap: "wrap",
+      alignItems: "center"
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
@@ -2221,7 +2574,11 @@ function App() {
       marginTop: 8,
       fontSize: 12
     }
-  }, "Writing cover letter\u2026")))));
+  }, "Writing cover letter\u2026")))), showDonate && /*#__PURE__*/React.createElement(DonateModal, {
+    onClose: function onClose() {
+      return setShowDonate(false);
+    }
+  }));
 }
 var _root = ReactDOM.createRoot(document.getElementById("root"));
 _root.render(React.createElement(App));
