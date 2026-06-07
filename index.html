@@ -46,13 +46,11 @@
   <button id="install-btn">Install</button>
   <button id="dismiss-btn">✕</button>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-
 <script>
 "use strict";
 
@@ -135,7 +133,7 @@ function _extractPdfText() {
           return _context6.a(2, new Promise(function (resolve, reject) {
             var reader = new FileReader();
             reader.onload = /*#__PURE__*/function () {
-              var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+              var _ref7 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
                 var typedArray, pdf, text, i, page, content, _t5;
                 return _regenerator().w(function (_context5) {
                   while (1) switch (_context5.p = _context5.n) {
@@ -190,7 +188,7 @@ function _extractPdfText() {
                 }, _callee5, null, [[0, 8]]);
               }));
               return function (_x0) {
-                return _ref6.apply(this, arguments);
+                return _ref7.apply(this, arguments);
               };
             }();
             reader.onerror = reject;
@@ -877,6 +875,15 @@ function ResultPanel(_ref2) {
     a.click();
     URL.revokeObjectURL(url);
   }
+  function downloadPdf() {
+    var escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var parts = ['<!DOCTYPE html><html><head><meta charset="UTF-8"/>', '<style>', '@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");', '*{margin:0;padding:0;box-sizing:border-box;}', 'body{font-family:"Lato",sans-serif;font-size:11pt;line-height:1.6;color:#111;padding:20mm 18mm;}', 'pre{white-space:pre-wrap;font-family:"Lato",sans-serif;font-size:11pt;}', '@media print{body{padding:0;}@page{margin:15mm 18mm;}}', '</style></head><body>', '<pre>' + escaped + '</pre>', '<' + 'script>window.onload=function(){window.print();}</' + 'script>', '</body></html>'].join('\n');
+    var w = window.open('', '_blank');
+    if (w) {
+      w.document.write(parts);
+      w.document.close();
+    }
+  }
   function downloadDocx() {
     return _downloadDocx.apply(this, arguments);
   }
@@ -944,12 +951,12 @@ function ResultPanel(_ref2) {
       color: copied ? "white" : "#94a3b8",
       transition: "all 0.2s"
     }
-  }, copied ? "✓ Copied" : "📋 Copy"), isResume ? /*#__PURE__*/React.createElement("button", {
+  }, copied ? "✓ Copied" : "📋 Copy"), isResume ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     onClick: downloadDocx,
     style: {
-      padding: "5px 12px",
+      padding: "5px 11px",
       borderRadius: 6,
-      fontSize: 12,
+      fontSize: 11,
       cursor: "pointer",
       border: "none",
       fontFamily: "inherit",
@@ -957,19 +964,45 @@ function ResultPanel(_ref2) {
       color: "white",
       fontWeight: 600
     }
-  }, "\u2B07\uFE0F Word Doc") : /*#__PURE__*/React.createElement("button", {
+  }, "\u2B07\uFE0F Word"), /*#__PURE__*/React.createElement("button", {
+    onClick: downloadPdf,
+    style: {
+      padding: "5px 11px",
+      borderRadius: 6,
+      fontSize: 11,
+      cursor: "pointer",
+      border: "none",
+      fontFamily: "inherit",
+      background: "#16532d",
+      color: "#4ade80",
+      fontWeight: 600
+    }
+  }, "\u2B07\uFE0F PDF")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     onClick: downloadTxt,
     style: {
-      padding: "5px 12px",
+      padding: "5px 11px",
       borderRadius: 6,
-      fontSize: 12,
+      fontSize: 11,
       cursor: "pointer",
       border: "none",
       fontFamily: "inherit",
       background: "#1e293b",
       color: "#94a3b8"
     }
-  }, "\u2B07\uFE0F TXT")), /*#__PURE__*/React.createElement("textarea", {
+  }, "\u2B07\uFE0F TXT"), /*#__PURE__*/React.createElement("button", {
+    onClick: downloadPdf,
+    style: {
+      padding: "5px 11px",
+      borderRadius: 6,
+      fontSize: 11,
+      cursor: "pointer",
+      border: "none",
+      fontFamily: "inherit",
+      background: "#16532d",
+      color: "#4ade80",
+      fontWeight: 600
+    }
+  }, "\u2B07\uFE0F PDF"))), /*#__PURE__*/React.createElement("textarea", {
     value: content,
     onChange: function onChange(e) {
       return setContent(e.target.value);
@@ -990,10 +1023,191 @@ function ResultPanel(_ref2) {
   }));
 }
 
+// ─── Home Screen ──────────────────────────────────────────────────────────────
+function HomeScreen(_ref3) {
+  var onStart = _ref3.onStart;
+  var steps = [{
+    icon: "⚙️",
+    title: "Set up your AI",
+    desc: "Choose ChatGPT, Claude, or Gemini and paste your API key. Stored only on your device."
+  }, {
+    icon: "📄",
+    title: "Upload your documents",
+    desc: "Upload your resume and/or cover letter as PDF. Extracted text is saved locally for reuse."
+  }, {
+    icon: "📋",
+    title: "Paste a job description",
+    desc: "Copy the full JD from any job board and paste it in. More detail = better tailoring."
+  }, {
+    icon: "✦",
+    title: "Get tailored documents",
+    desc: "Your resume and cover letter are rewritten to match the JD — download as Word or PDF."
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: "#040d1a",
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "48px 24px 32px",
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 72,
+      height: 72,
+      borderRadius: 20,
+      background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 34,
+      marginBottom: 24,
+      boxShadow: "0 0 40px #3b82f644, 0 0 80px #8b5cf622"
+    }
+  }, "\u2726"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Syne', sans-serif",
+      fontWeight: 800,
+      fontSize: "clamp(32px, 8vw, 48px)",
+      letterSpacing: "-0.03em",
+      background: "linear-gradient(135deg, #e2e8f0 30%, #94a3b8)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      marginBottom: 6,
+      lineHeight: 1.1
+    }
+  }, "ApplyAI"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#334155",
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+      marginBottom: 20,
+      fontFamily: "'DM Mono', monospace"
+    }
+  }, "Designed for you by Lokesh Dudigollar"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "clamp(15px, 4vw, 18px)",
+      color: "#64748b",
+      maxWidth: 340,
+      lineHeight: 1.7,
+      marginBottom: 40
+    }
+  }, "Stop sending the same resume to every job. Tailor your resume and cover letter to each JD in seconds \u2014 powered by AI."), /*#__PURE__*/React.createElement("button", {
+    onClick: onStart,
+    style: {
+      padding: "14px 40px",
+      background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+      border: "none",
+      borderRadius: 12,
+      color: "white",
+      fontFamily: "'Syne', sans-serif",
+      fontWeight: 700,
+      fontSize: 16,
+      cursor: "pointer",
+      letterSpacing: "-0.01em",
+      boxShadow: "0 4px 24px #2563eb44",
+      transition: "transform 0.15s, box-shadow 0.15s"
+    },
+    onMouseOver: function onMouseOver(e) {
+      e.target.style.transform = "translateY(-2px)";
+      e.target.style.boxShadow = "0 8px 32px #2563eb66";
+    },
+    onMouseOut: function onMouseOut(e) {
+      e.target.style.transform = "";
+      e.target.style.boxShadow = "0 4px 24px #2563eb44";
+    }
+  }, "Get Started \u2192")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "0 20px 48px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 560,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      marginBottom: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      letterSpacing: "0.15em",
+      textTransform: "uppercase",
+      color: "#334155",
+      fontFamily: "'DM Mono', monospace"
+    }
+  }, "How it works")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 12
+    }
+  }, steps.map(function (s, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 16,
+        padding: "14px 16px",
+        background: "#080f1e",
+        border: "1px solid #1e293b",
+        borderRadius: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        flexShrink: 0,
+        background: "linear-gradient(135deg, #1e3a5f, #1e293b)",
+        border: "1px solid #2563eb44",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 16
+      }
+    }, s.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "'Syne', sans-serif",
+        fontWeight: 700,
+        fontSize: 14,
+        color: "#e2e8f0",
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "#334155",
+        marginRight: 8,
+        fontFamily: "'DM Mono', monospace",
+        fontSize: 11
+      }
+    }, "0", i + 1), s.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "#475569",
+        lineHeight: 1.6
+      }
+    }, s.desc)));
+  })))));
+}
+
 // ─── Settings Screen ──────────────────────────────────────────────────────────
-function SettingsScreen(_ref3) {
-  var onSave = _ref3.onSave,
-    existingConfig = _ref3.existingConfig;
+function SettingsScreen(_ref4) {
+  var onSave = _ref4.onSave,
+    existingConfig = _ref4.existingConfig;
   var _useState9 = useState((existingConfig === null || existingConfig === void 0 ? void 0 : existingConfig.provider) || "claude"),
     _useState0 = _slicedToArray(_useState9, 2),
     provider = _useState0[0],
@@ -1141,10 +1355,10 @@ function SettingsScreen(_ref3) {
       flexDirection: "column",
       gap: 10
     }
-  }, Object.entries(AI_MODELS).map(function (_ref4) {
-    var _ref5 = _slicedToArray(_ref4, 2),
-      key = _ref5[0],
-      info = _ref5[1];
+  }, Object.entries(AI_MODELS).map(function (_ref5) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+      key = _ref6[0],
+      info = _ref6[1];
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: function onClick() {
@@ -1361,9 +1575,11 @@ function SettingsScreen(_ref3) {
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
 function App() {
-  // screen: "settings" | "mode" | "upload" | "jd" | "results"
+  // screen: "home" | "settings" | "mode" | "upload" | "jd" | "results"
   var initConfig = getAIConfig();
-  var _useState19 = useState(initConfig.apiKey ? "mode" : "settings"),
+  var hasSeenHome = ls.get("seen_home", false);
+  var initScreen = !hasSeenHome ? "home" : initConfig.apiKey ? "mode" : "settings";
+  var _useState19 = useState(initScreen),
     _useState20 = _slicedToArray(_useState19, 2),
     screen = _useState20[0],
     setScreen = _useState20[1];
@@ -1508,7 +1724,8 @@ function App() {
       position: "sticky",
       top: 0,
       zIndex: 50,
-      padding: "0 16px"
+      padding: "0 16px",
+      display: screen === "home" ? "none" : "block"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1594,9 +1811,15 @@ function App() {
     style: {
       maxWidth: 600,
       margin: "0 auto",
-      padding: "20px 16px"
+      padding: "20px 16px",
+      display: screen === "home" ? "none" : "block"
     }
-  }, screen === "settings" && /*#__PURE__*/React.createElement("div", {
+  }, screen === "home" && /*#__PURE__*/React.createElement(HomeScreen, {
+    onStart: function onStart() {
+      ls.set("seen_home", true);
+      setScreen(getAIConfig().apiKey ? "mode" : "settings");
+    }
+  }), screen === "settings" && /*#__PURE__*/React.createElement("div", {
     className: "fade"
   }, /*#__PURE__*/React.createElement(SettingsScreen, {
     existingConfig: aiConfig,
@@ -1713,9 +1936,40 @@ function App() {
   }, mode === "both" ? "Upload Your Documents" : "Upload Your Cover Letter"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#475569"
+      color: "#475569",
+      marginBottom: 8
     }
-  }, "Stored in your browser \u2014 upload once, reuse forever")), mode === "both" && /*#__PURE__*/React.createElement(UploadBox, {
+  }, "Stored in your browser \u2014 upload once, reuse forever"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "8px 12px",
+      background: "#0a1e38",
+      border: "1px solid #1e3a5f",
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12
+    }
+  }, "\uD83D\uDCCE"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: "#64748b"
+    }
+  }, "Need a template? "), /*#__PURE__*/React.createElement("a", {
+    href: "https://docs.google.com/document/d/1DaOmVmZXTaMkxcMcSLKiX2vdcp__cUoP/edit?usp=drive_link&ouid=116244776009877834710&rtpof=true&sd=true",
+    download: "sample_resume_template.docx",
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      fontSize: 12,
+      color: "#60a5fa",
+      textDecoration: "none",
+      fontWeight: 600
+    }
+  }, "Download sample resume format \u2197"))), mode === "both" && /*#__PURE__*/React.createElement(UploadBox, {
     label: "Resume / CV",
     icon: "\uD83D\uDCC4",
     text: resumeText,
@@ -1995,7 +2249,6 @@ _root.render(React.createElement(App));
 })();
 
 </script>
-
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
