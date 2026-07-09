@@ -1,5 +1,5 @@
 # Be smart with every application
-## This app simplifies your job application by generating a customized CV and cover letter as per the job description. Though you can achieve this with any AI tool like chatgpt or Claude this app is meant for handy and quick usage so you don't spend too much time on applying to each job.
+### This app simplifies your job application by generating a customized CV and cover letter as per the job description. Though you can achieve this with any AI tool like chatgpt or Claude this app is meant for handy and quick usage so you don't spend too much time on applying to each job.
 
 ### This was originally built using react but converted to plain js/html for easier maangement and hosting
 
